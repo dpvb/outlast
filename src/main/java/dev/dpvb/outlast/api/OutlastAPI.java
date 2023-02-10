@@ -15,7 +15,29 @@ public interface OutlastAPI {
      * @param action the action to perform
      */
     void withPlugin(@NotNull Consumer<JavaPlugin> action);
-    // as needed
+
+    /**
+     * Performs an action with the requested service if possible.
+     * <p>
+     * If a service instance is not present this method will do nothing.
+     *
+     * @param service a service class
+     * @param action the action to perform
+     * @param <T> the type of the service
+     */
+    <T> void withServiceGraceful(@NotNull Class<T> service, @NotNull Consumer<T> action);
+
+    /**
+     * Performs an action with the requested service.
+     * <p>
+     * If a service instance is not present this method will throw.
+     *
+     * @param service a service class
+     * @param action the action to perform
+     * @param <T> the type of the service
+     * @throws IllegalStateException if a service instance is not available
+     */
+    <T> void withService(@NotNull Class<T> service, @NotNull Consumer<T> action);
 
     /**
      * Gets the API instance.
