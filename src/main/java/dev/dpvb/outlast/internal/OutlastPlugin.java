@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class OutlastPlugin extends JavaPlugin implements OutlastAPI {
-    private final HashMap<Class<?>, ?> services = new HashMap<>();
+    private final HashMap<Class<?>, Object> services = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -46,6 +46,12 @@ public class OutlastPlugin extends JavaPlugin implements OutlastAPI {
                 throw new IllegalStateException("Service " + service.getName() + " is not available");
             }
             action.accept(service.cast(instance));
+        }
+    }
+
+    public <T> void putService(Class<T> service, T instance) {
+        synchronized (services) {
+            services.put(service, instance);
         }
     }
 }
