@@ -15,6 +15,8 @@ public class OutlastPlugin extends JavaPlugin implements OutlastAPI {
     public void onEnable() {
         // Register the API
         getServer().getServicesManager().register(OutlastAPI.class, this, this, ServicePriority.Normal);
+        // Setup Commands
+        setupCommands();
     }
 
     @Override
@@ -53,5 +55,16 @@ public class OutlastPlugin extends JavaPlugin implements OutlastAPI {
         synchronized (services) {
             services.put(service, instance);
         }
+    }
+
+    private void setupCommands() {
+        final Commands commands;
+        try {
+            commands = new Commands();
+        } catch (final Exception e) {
+            this.getLogger().severe("Failed to initialize the command manager.");
+            throw new IllegalStateException(e);
+        }
+        commands.initCommands();
     }
 }
