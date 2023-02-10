@@ -1,9 +1,6 @@
 package dev.dpvb.outlast.internal;
 
-import cloud.commandframework.annotations.Argument;
-import cloud.commandframework.annotations.CommandDescription;
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.Regex;
+import cloud.commandframework.annotations.*;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import org.bukkit.command.CommandSender;
@@ -99,5 +96,30 @@ class Commands {
     @CommandMethod(value = "pay <player> <amount>", requiredSender = Player.class)
     @CommandDescription("Pay another player")
     public void pay(CommandSender sender, @NotNull @Argument("player") Player target, @Argument("amount") int amount) {
+    }
+
+    // Admin commands
+    @CommandMethod(value = "setspawn", requiredSender = Player.class)
+    @CommandDescription("Sets the spawn location to your current location")
+    @CommandPermission("outlast.admin")
+    public void setSpawn(CommandSender sender) {
+    }
+
+    @CommandMethod(value = "vanish", requiredSender = Player.class)
+    @CommandDescription("Toggle your invisibility")
+    @CommandPermission("outlast.admin")
+    public void vanish(CommandSender sender) {
+    }
+
+    @CommandMethod(value = "seeinv <player>", requiredSender = Player.class)
+    @CommandDescription("Displays the inventory of the named player")
+    @CommandPermission("outlast.admin")
+    public void seeInventory(CommandSender sender, @NotNull @Argument("player") Player target) {
+    }
+
+    @CommandMethod(value = "tpo <player>", requiredSender = Player.class)
+    @CommandDescription("Teleports to the named player silently (without requesting)")
+    @CommandPermission("outlast.admin")
+    public void teleportOverride(CommandSender sender, @NotNull @Argument("player") Player target) {
     }
 }
