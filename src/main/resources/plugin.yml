@@ -4,8 +4,6 @@ main: dev.dpvb.outlast.internal.OutlastPlugin
 api-version: 1.19
 authors: [dpvb]
 description: '${project.description}'
-depend:
-  - ProtocolLib # Likely a required dependency
 libraries:
   - cloud.commandframework:cloud-paper:${cloud.version}
   - cloud.commandframework:cloud-annotations:${cloud.version}
