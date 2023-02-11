@@ -18,6 +18,11 @@ public class PlayerController {
         this.connection = connection;
     }
 
+    /**
+     * Gets a Player's information and creates a {@link SQLPlayer} if stats with this Player's UUID exists.
+     * @param uuid The uuid of the Player's stats you want to retrieve.
+     * @return {@link SQLPlayer} or null if the Player does not exist.
+     */
     public @Nullable SQLPlayer getPlayer(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM player WHERE player_uuid = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
