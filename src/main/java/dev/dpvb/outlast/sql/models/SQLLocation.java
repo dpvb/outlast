@@ -1,4 +1,4 @@
-package dev.dpvb.outlast.sql;
+package dev.dpvb.outlast.sql.models;
 
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;

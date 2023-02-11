@@ -1,4 +1,4 @@
-package dev.dpvb.outlast.sql;
+package dev.dpvb.outlast.sql.models;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
