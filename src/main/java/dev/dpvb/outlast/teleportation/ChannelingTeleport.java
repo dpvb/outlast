@@ -6,13 +6,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
- * Represents a teleport in progress.
+ * A teleport in progress.
  */
-public interface ChannelingTeleport {
+public class ChannelingTeleport {
     /**
      * Represents the state of a teleport.
      */
-    enum State {
+    public enum State {
         /**
          * The target is waiting to teleport.
          */
@@ -28,24 +28,38 @@ public interface ChannelingTeleport {
         ;
     }
 
+    private final Supplier<Location> locationSupplier;
+    private @NotNull State state = State.WAITING;
+
+    public ChannelingTeleport(@NotNull Supplier<Location> locationSupplier) {
+        this.locationSupplier = locationSupplier;
+    }
+
     /**
      * Gets the state of the teleport.
      *
      * @return the state of the teleport
      */
-    State getState();
+    public @NotNull State getState() {
+        return state;
+    }
 
     /**
      * Gets the location function of the teleport destination.
      *
      * @return the teleport destination as a location function
      */
-    @NotNull Supplier<Location> getDestination();
+    public @NotNull Supplier<Location> getDestination() {
+        return locationSupplier;
+    }
 
     /**
      * Cancels the teleport.
      *
      * @return true unless the teleport has already been cancelled or succeeded
      */
-    boolean cancel();
+    public boolean cancel() {
+        // TODO
+        return false;
+    }
 }

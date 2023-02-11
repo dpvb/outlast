@@ -6,7 +6,6 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
-import dev.dpvb.outlast.api.OutlastAPI;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.command.CommandSender;
@@ -36,34 +35,30 @@ class Commands {
     @CommandDescription("Sends a teleport request to the named player")
     public void teleport(CommandSender sender, @NotNull @Argument("player") Player target) {
         final Player player = (Player) sender;
-        OutlastAPI.getInstance().withService(TeleportService.class, service -> {
-            final var teleportRequest = service.requestTeleport(player, target);
-            player.sendPlainMessage("This request will expire in " + teleportRequest.getTimeout() + " seconds.");
-        });
+        final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
+        player.sendPlainMessage("This request will expire in " + teleportRequest.getTimeout() + " seconds.");
     }
 
     @CommandMethod(value = "tpaccept", requiredSender = Player.class)
     @CommandDescription("Accepts any teleport request sent to you")
     public void acceptTeleports(CommandSender sender) {
         final Player player = (Player) sender;
-        OutlastAPI.getInstance().withService(TeleportService.class, service -> {
-            final var teleportRequest = service.getPendingRequests(player).poll();
-            if (teleportRequest == null) {
-                player.sendPlainMessage("You have no pending teleport requests.");
+        final var teleportRequest = TeleportService.getInstance().getPendingRequests(player).poll();
+        if (teleportRequest == null) {
+            player.sendPlainMessage("You have no pending teleport requests.");
+            return;
+        }
+        if (teleportRequest.getState() == TeleportRequest.State.SENT) {
+            if (teleportRequest.accept()) {
+                player.sendPlainMessage("Teleport request accepted.");
                 return;
             }
-            if (teleportRequest.getState() == TeleportRequest.State.SENT) {
-                if (teleportRequest.accept()) {
-                    player.sendPlainMessage("Teleport request accepted.");
-                    return;
-                }
-            }
-            player.sendPlainMessage("The teleport request " + switch (teleportRequest.getState()) {
-                case SENT -> new IllegalStateException();
-                case ACCEPTED -> "was already accepted.";
-                case DENIED -> "was denied.";
-                case EXPIRED -> "expired.";
-            });
+        }
+        player.sendPlainMessage("The teleport request " + switch (teleportRequest.getState()) {
+            case SENT -> new IllegalStateException();
+            case ACCEPTED -> "was already accepted.";
+            case DENIED -> "was denied.";
+            case EXPIRED -> "expired.";
         });
     }
 
@@ -117,12 +112,10 @@ class Commands {
     public void teamHome(CommandSender sender) {
         final Player player = (Player) sender;
         // TODO Check for team
-        OutlastAPI.getInstance().withService(TeleportService.class, service -> {
-            final var pendingTeleport = service.teleportHome(player);
-            if (pendingTeleport == null) {
-                player.sendPlainMessage("Your team does not have a home set.");
-            }
-        });
+        final var pendingTeleport = TeleportService.getInstance().teleportHome(player);
+        if (pendingTeleport == null) {
+            player.sendPlainMessage("Your team does not have a home set.");
+        }
     }
 
     @CommandMethod(value = "team help", requiredSender = Player.class)

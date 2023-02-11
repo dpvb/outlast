@@ -3,14 +3,21 @@ package dev.dpvb.outlast.teleportation;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+
 /**
- * Represents a request to teleport to another player.
+ * A request to teleport to another player.
  */
-public interface TeleportRequest {
+public class TeleportRequest {
     /**
-     * Represents the state of the request.
+     * The seconds it takes for a teleport request to expire.
      */
-    enum State {
+    public static final long TIMEOUT = 60;
+
+    /**
+     * Represents the state of a request.
+     */
+    public enum State {
         /**
          * The request has been sent.
          */
@@ -29,26 +36,42 @@ public interface TeleportRequest {
         EXPIRED,
     }
 
+    private final Instant instant = Instant.now();
+    private final Player sender;
+    private final Player target;
+    private @NotNull State state = State.SENT;
+
+    public TeleportRequest(@NotNull Player sender, @NotNull Player target) {
+        this.sender = sender;
+        this.target = target;
+    }
+
     /**
      * Gets the state of the request.
      *
      * @return the state of the request
      */
-    State getState();
+    public @NotNull State getState() {
+        return state;
+    }
 
     /**
      * Gets the player who sent the request.
      *
      * @return the player who sent the request
      */
-    @NotNull Player getSender();
+    public @NotNull Player getSender() {
+        return sender;
+    }
 
     /**
      * Gets the target player of the request.
      *
      * @return the target player of the request
      */
-    @NotNull Player getTarget();
+    public @NotNull Player getTarget() {
+        return target;
+    }
 
     /**
      * Gets the timeout of the request in seconds.
@@ -57,8 +80,8 @@ public interface TeleportRequest {
      *
      * @return the timeout of the request
      */
-    default long getTimeout() {
-        return 60;
+    public long getTimeout() {
+        return TIMEOUT; // FIXME remove this method and just use the constant?
     }
 
     /**
@@ -67,12 +90,17 @@ public interface TeleportRequest {
      * @return the seconds since the request was created
      * @see #getTimeout()
      */
-    long getTimeSince();
+    public long getTimeSince() {
+        return Instant.now().getEpochSecond() - instant.getEpochSecond();
+    }
 
     /**
      * Accepts the request.
      *
      * @return true only if the request was changed from sent to accepted
      */
-    boolean accept();
+    public boolean accept() {
+        // TODO
+        return false;
+    }
 }

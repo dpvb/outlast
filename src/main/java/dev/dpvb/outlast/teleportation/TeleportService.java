@@ -9,7 +9,10 @@ import java.util.Queue;
 /**
  * Handles teleportation.
  */
-public interface TeleportService {
+public class TeleportService {
+    private static final TeleportService INSTANCE = new TeleportService();
+    private final long warmupTicks = 20L * 5;
+
     /**
      * Teleports a player to the player's team's home.
      * <p>
@@ -19,7 +22,10 @@ public interface TeleportService {
      * @param player the player to teleport
      * @return a pending teleport or null
      */
-    @Nullable ChannelingTeleport teleportHome(@NotNull Player player);
+    public @Nullable ChannelingTeleport teleportHome(@NotNull Player player) {
+        // TODO
+        return null;
+    }
 
     /**
      * Requests a teleport to another player.
@@ -28,7 +34,10 @@ public interface TeleportService {
      * @param target the request target
      * @return a teleport request
      */
-    @NotNull TeleportRequest requestTeleport(@NotNull Player player, @NotNull Player target);
+    public @NotNull TeleportRequest requestTeleport(@NotNull Player player, @NotNull Player target) {
+        // TODO FIXME
+        return null;
+    }
 
     /**
      * Gets the pending requests for a player.
@@ -36,5 +45,12 @@ public interface TeleportService {
      * @param player a player
      * @return the pending requests for the player
      */
-    @NotNull Queue<TeleportRequest> getPendingRequests(@NotNull Player player);
+    public @NotNull Queue<TeleportRequest> getPendingRequests(@NotNull Player player) {
+        // TODO FIXME
+        return null;
+    }
+
+    public static TeleportService getInstance() {
+        return INSTANCE;
+    }
 }
