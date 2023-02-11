@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * Represents a teleport in progress.
  */
-public interface PendingTeleport {
+public interface ChannelingTeleport {
     /**
      * Represents the state of a teleport.
      */

@@ -19,7 +19,7 @@ public interface TeleportService {
      * @param player the player to teleport
      * @return a pending teleport or null
      */
-    @Nullable PendingTeleport teleportHome(@NotNull Player player);
+    @Nullable ChannelingTeleport teleportHome(@NotNull Player player);
 
     /**
      * Requests a teleport to another player.
