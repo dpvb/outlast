@@ -1,18 +1,18 @@
-package dev.dpvb.outlast.teams;
+package dev.dpvb.outlast.sql;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public final class OutlastPlayer {
+public final class SQLPlayer {
     private final UUID uuid;
     private short kills = 0;
     private short deaths = 0;
     private int coins = 0;
     private @Nullable String team;
 
-    public OutlastPlayer(@NotNull UUID uuid) {
+    public SQLPlayer(@NotNull UUID uuid) {
         this.uuid = uuid;
     }
 

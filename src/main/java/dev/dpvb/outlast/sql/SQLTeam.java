@@ -1,14 +1,14 @@
-package dev.dpvb.outlast.teams;
+package dev.dpvb.outlast.sql;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public final class Team {
+public final class SQLTeam {
     private final @NotNull String name;
     private @NotNull UUID leader;
 
-    public Team(@NotNull String name, @NotNull UUID leader) {
+    public SQLTeam(@NotNull String name, @NotNull UUID leader) {
         this.name = name;
         this.leader = leader;
     }
@@ -30,7 +30,7 @@ public final class Team {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Team team = (Team) o;
+        SQLTeam team = (SQLTeam) o;
 
         if (!name.equals(team.name)) return false;
         return leader.equals(team.leader);
