@@ -176,5 +176,10 @@ class Commands {
         if (sqlPlayer != null) {
             player.sendMessage(sqlPlayer.toString());
         }
+
+        List<SQLPlayer> players = SQLService.getInstance().getPlayerController().getPlayers();
+        for (SQLPlayer player1 : players) {
+            player.sendMessage(player1.toString());
+        }
     }
 }

@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.sql;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.controllers.PlayerController;
 import org.bukkit.Bukkit;
 
@@ -15,6 +16,7 @@ public class SQLService {
     private Connection connection;
 
     private PlayerController playerController;
+    private PlayerCache playerCache;
 
     /**
      * Initialize a connection to the MySQL Database
@@ -30,6 +32,10 @@ public class SQLService {
 
         // Create Controllers
         playerController = new PlayerController(connection);
+
+        // Create Cache
+        playerCache = new PlayerCache(playerController);
+        playerCache.load();
 
         started = true;
     }
@@ -51,5 +57,9 @@ public class SQLService {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public PlayerCache getPlayerCache() {
+        return playerCache;
     }
 }

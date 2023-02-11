@@ -11,6 +11,7 @@ public final class SQLPlayer {
     private short kills = 0;
     private short deaths = 0;
     private int coins = 0;
+    private byte strengthModifier = 0;
     private @Nullable String team;
 
     public SQLPlayer(@NotNull UUID uuid) {
@@ -45,6 +46,14 @@ public final class SQLPlayer {
         this.coins = coins;
     }
 
+    public byte getStrengthModifier() {
+        return strengthModifier;
+    }
+
+    public void setStrengthModifier(byte strengthModifier) {
+        this.strengthModifier = strengthModifier;
+    }
+
     public @Nullable String getTeam() {
         return team;
     }
@@ -64,6 +73,7 @@ public final class SQLPlayer {
         if (deaths != sqlPlayer.deaths) return false;
         if (coins != sqlPlayer.coins) return false;
         if (!uuid.equals(sqlPlayer.uuid)) return false;
+        if (strengthModifier != sqlPlayer.strengthModifier) return false;
         return Objects.equals(team, sqlPlayer.team);
     }
 
@@ -73,6 +83,7 @@ public final class SQLPlayer {
         result = 31 * result + (int) kills;
         result = 31 * result + (int) deaths;
         result = 31 * result + coins;
+        result = 31 * result + (int) strengthModifier;
         result = 31 * result + (team != null ? team.hashCode() : 0);
         return result;
     }
@@ -84,6 +95,7 @@ public final class SQLPlayer {
                 ", kills=" + kills +
                 ", deaths=" + deaths +
                 ", coins=" + coins +
+                ", strengthModifier=" + strengthModifier +
                 ", team='" + team + '\'' +
                 '}';
     }

@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class PlayerController {
@@ -25,14 +27,15 @@ public class PlayerController {
      */
     public @Nullable SQLPlayer getPlayer(UUID uuid) {
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM player WHERE player_uuid = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player WHERE player_uuid = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, uuid.toString());
-            ResultSet rs = ps.executeQuery();
+            final ResultSet rs = ps.executeQuery();
             if (rs.first()) {
-                SQLPlayer sqlPlayer = new SQLPlayer(uuid);
+                final SQLPlayer sqlPlayer = new SQLPlayer(uuid);
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));
                 sqlPlayer.setCoins(rs.getInt("coins"));
+                sqlPlayer.setStrengthModifier(rs.getByte("strength_modifier"));
                 sqlPlayer.setTeam(rs.getString("team_name"));
                 return sqlPlayer;
             }
@@ -42,6 +45,29 @@ public class PlayerController {
         }
 
         return null;
+    }
+
+    public List<SQLPlayer> getPlayers() {
+        final List<SQLPlayer> players = new ArrayList<>();
+        try {
+            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player");
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final UUID uuid = UUID.nameUUIDFromBytes(rs.getBytes("player_uuid"));
+                final SQLPlayer sqlPlayer = new SQLPlayer(uuid);
+                sqlPlayer.setKills(rs.getShort("kills"));
+                sqlPlayer.setDeaths(rs.getShort("deaths"));
+                sqlPlayer.setCoins(rs.getInt("coins"));
+                sqlPlayer.setStrengthModifier(rs.getByte("strength_modifier"));
+                sqlPlayer.setTeam(rs.getString("team_name"));
+                players.add(sqlPlayer);
+            }
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("getPlayers failed.");
+            throw new RuntimeException(e);
+        }
+
+        return players;
     }
 
 }
