@@ -11,7 +11,7 @@ import java.util.Queue;
  */
 public class TeleportService {
     private static final TeleportService INSTANCE = new TeleportService();
-    private final long warmupTicks = 20L * 5;
+    private final long channelTicks = 20L * 5;
 
     /**
      * Teleports a player to the player's team's home.
@@ -20,7 +20,7 @@ public class TeleportService {
      * player's team does not have a home set.
      *
      * @param player the player to teleport
-     * @return a pending teleport or null
+     * @return a channeling teleport or null
      */
     public @Nullable ChannelingTeleport teleportHome(@NotNull Player player) {
         // TODO
