@@ -4,6 +4,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -12,6 +15,7 @@ import java.util.Queue;
 public class TeleportService {
     private static final TeleportService INSTANCE = new TeleportService();
     private final long channelTicks = 20L * 5;
+    private final Map<Player, Queue<TeleportRequest>> requestMap = new HashMap<>();
 
     /**
      * Teleports a player to the player's team's home.
@@ -35,8 +39,9 @@ public class TeleportService {
      * @return a teleport request
      */
     public @NotNull TeleportRequest requestTeleport(@NotNull Player player, @NotNull Player target) {
-        // TODO FIXME
-        return null;
+        final TeleportRequest request = new TeleportRequest(player, target);
+        getPendingRequests(target).add(request);
+        return request;
     }
 
     /**
@@ -46,8 +51,8 @@ public class TeleportService {
      * @return the pending requests for the player
      */
     public @NotNull Queue<TeleportRequest> getPendingRequests(@NotNull Player player) {
-        // TODO FIXME
-        return null;
+        requestMap.putIfAbsent(player, new LinkedList<>());
+        return requestMap.get(player);
     }
 
     public static TeleportService getInstance() {
