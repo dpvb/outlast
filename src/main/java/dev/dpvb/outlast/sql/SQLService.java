@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.sql;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.sql.controllers.PlayerController;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
@@ -13,6 +14,8 @@ public class SQLService {
     private boolean started = false;
     private Connection connection;
 
+    private PlayerController playerController;
+
     /**
      * Initialize a connection to the MySQL Database
      */
@@ -21,8 +24,12 @@ public class SQLService {
             return;
         }
 
+        // Initialize connection
         connection = DriverManager.getConnection(getConnectionString());
         Bukkit.getLogger().info("Connected to Database");
+
+        // Create Controllers
+        playerController = new PlayerController(connection);
 
         started = true;
     }
@@ -42,4 +49,7 @@ public class SQLService {
         return INSTANCE;
     }
 
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
 }

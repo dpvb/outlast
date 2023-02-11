@@ -6,8 +6,11 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
+import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -15,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 class Commands {
 
@@ -161,5 +165,16 @@ class Commands {
     @CommandDescription("Teleports to the named player silently (without requesting)")
     @CommandPermission("outlast.admin")
     public void teleportOverride(CommandSender sender, @NotNull @Argument("player") Player target) {
+    }
+
+    @CommandMethod(value = "test", requiredSender = Player.class)
+    @CommandDescription("Outlast test method!")
+    @CommandPermission("outlast.test")
+    public void test(CommandSender sender) {
+        final Player player = (Player) sender;
+        SQLPlayer sqlPlayer = SQLService.getInstance().getPlayerController().getPlayer(UUID.fromString("4a31e0e5-6852-4f22-8a6c-2c2fca576574"));
+        if (sqlPlayer != null) {
+            player.sendMessage(sqlPlayer.toString());
+        }
     }
 }
