@@ -6,9 +6,9 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
-import dev.dpvb.outlast.api.OutlastAPI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,15 +16,11 @@ import java.util.List;
 
 class Commands {
 
-    // private final PaperCommandManager<CommandSender> manager;
+    Commands() {}
 
-    public Commands() throws Exception {
-        // TODO how to get instance here?
-        // this.manager = PaperCommandManager.createNative(instance, CommandExecutionCoordinator.simpleCoordinator());
-    }
-
-    public void initCommands() {
-        // new AnnotationParser<>(manager, CommandSender.class, parameters -> SimpleCommandMeta.empty()).parse(this);
+    public void initCommands(Plugin plugin) throws Exception {
+        final PaperCommandManager<CommandSender> manager = PaperCommandManager.createNative(plugin, CommandExecutionCoordinator.simpleCoordinator());
+        new AnnotationParser<>(manager, CommandSender.class, parameters -> SimpleCommandMeta.empty()).parse(this);
     }
 
     @Suggestions("team-members")

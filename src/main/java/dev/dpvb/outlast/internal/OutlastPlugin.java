@@ -22,13 +22,14 @@ public class OutlastPlugin extends JavaPlugin {
     }
 
     private void setupCommands() {
-        final Commands commands;
-        try {
-            commands = new Commands();
-        } catch (final Exception e) {
-            this.getLogger().severe("Failed to initialize the command manager.");
-            throw new IllegalStateException(e);
-        }
-        commands.initCommands();
+        final Commands commands = new Commands();
+        api.withPlugin(plugin -> {
+            try {
+                commands.initCommands(plugin);
+            } catch (final Exception e) {
+                this.getLogger().severe("Failed to initialize the command manager.");
+                throw new IllegalStateException(e);
+            }
+        });
     }
 }
