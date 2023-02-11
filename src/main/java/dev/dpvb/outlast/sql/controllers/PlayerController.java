@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Interacts with the database to retrieve player stat models.
+ */
 public class PlayerController {
 
     private final Connection connection;
@@ -21,9 +24,12 @@ public class PlayerController {
     }
 
     /**
-     * Gets a Player's information and creates a {@link SQLPlayer} if stats with this Player's UUID exists.
-     * @param uuid The uuid of the Player's stats you want to retrieve.
-     * @return {@link SQLPlayer} or null if the Player does not exist.
+     * Retrieves information for a given player from the database.
+     * <p>
+     * Returns null if data for the player does not exist in the database.
+     *
+     * @param uuid the UniqueID of the player
+     * @return a player stat model for {@code uuid} or null
      */
     public @Nullable SQLPlayer getPlayer(UUID uuid) {
         try {
@@ -47,6 +53,11 @@ public class PlayerController {
         return null;
     }
 
+    /**
+     * Retrieves information for all players from the database.
+     *
+     * @return a list of player stat models
+     */
     public List<SQLPlayer> getPlayers() {
         final List<SQLPlayer> players = new ArrayList<>();
         try {

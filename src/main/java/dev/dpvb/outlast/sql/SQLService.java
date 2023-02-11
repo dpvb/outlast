@@ -19,7 +19,7 @@ public class SQLService {
     private PlayerCache playerCache;
 
     /**
-     * Initialize a connection to the MySQL Database
+     * Opens a connection to the MySQL Database and initializes controllers.
      */
     public void start() throws SQLException {
         if (started) {
@@ -44,15 +44,12 @@ public class SQLService {
         if (connection != null) {
             Bukkit.getLogger().info("Disconnected from Database");
             connection.close();
+            // FIXME set started to false?
         }
     }
 
     private String getConnectionString() {
         return OutlastPlugin.Configuration.getMySQLConnString();
-    }
-
-    public static SQLService getInstance() {
-        return INSTANCE;
     }
 
     public PlayerController getPlayerController() {
@@ -61,5 +58,9 @@ public class SQLService {
 
     public PlayerCache getPlayerCache() {
         return playerCache;
+    }
+
+    public static SQLService getInstance() {
+        return INSTANCE;
     }
 }
