@@ -74,21 +74,9 @@ public class TeleportRequest {
     }
 
     /**
-     * Gets the timeout of the request in seconds.
-     * <p>
-     * After this amount of time the request will expire.
-     *
-     * @return the timeout of the request
-     */
-    public long getTimeout() {
-        return TIMEOUT; // FIXME remove this method and just use the constant?
-    }
-
-    /**
      * Gets the time since the request was created in seconds.
      *
      * @return the seconds since the request was created
-     * @see #getTimeout()
      */
     public long getTimeSince() {
         return Instant.now().getEpochSecond() - instant.getEpochSecond();

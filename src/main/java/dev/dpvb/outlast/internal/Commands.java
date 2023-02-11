@@ -36,7 +36,7 @@ class Commands {
     public void teleport(CommandSender sender, @NotNull @Argument("player") Player target) {
         final Player player = (Player) sender;
         final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
-        player.sendPlainMessage("This request will expire in " + teleportRequest.getTimeout() + " seconds.");
+        player.sendPlainMessage("This request will expire in " + TeleportRequest.TIMEOUT + " seconds.");
     }
 
     @CommandMethod(value = "tpaccept", requiredSender = Player.class)
