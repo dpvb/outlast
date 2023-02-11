@@ -17,6 +17,10 @@ class OutlastAPIImpl implements OutlastAPI {
 
     @Override
     public <T> void withServiceGraceful(@NotNull Class<T> service, @NotNull Consumer<T> action) {
+        if (service == getClass()) {
+            action.accept(service.cast(this));
+            return;
+        }
         synchronized (services) {
             final var instance = services.get(service);
             if (instance != null) {
@@ -27,6 +31,10 @@ class OutlastAPIImpl implements OutlastAPI {
 
     @Override
     public <T> void withService(@NotNull Class<T> service, @NotNull Consumer<T> action) {
+        if (service == getClass()) {
+            action.accept(service.cast(this));
+            return;
+        }
         synchronized (services) {
             final var instance = services.get(service);
             if (instance == null) {
