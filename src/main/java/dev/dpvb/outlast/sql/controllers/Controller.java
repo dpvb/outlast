@@ -1,6 +1,5 @@
 package dev.dpvb.outlast.sql.controllers;
 
-import dev.dpvb.outlast.sql.models.SQLPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -17,7 +16,7 @@ public abstract class Controller<PK, M> {
         this.connection = connection;
     }
 
-    public abstract @Nullable SQLPlayer getModel(PK key);
+    public abstract @Nullable M getModel(PK key);
 
     public abstract List<M> getModels();
 
