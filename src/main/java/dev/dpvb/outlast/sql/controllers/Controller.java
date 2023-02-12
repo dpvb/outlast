@@ -22,5 +22,5 @@ public abstract class Controller<PK, M> {
 
     public abstract void updateModel(M model);
 
-    public abstract void insertModel(PK key);
+    public abstract void insertModel(M model);
 }

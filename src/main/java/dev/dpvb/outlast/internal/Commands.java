@@ -180,7 +180,7 @@ class Commands {
 
         long current = System.currentTimeMillis();
         for (int i = 0; i <= 100; i++) {
-            SQLService.getInstance().getPlayerController().insertModel(UUID.randomUUID());
+            SQLService.getInstance().getPlayerController().insertModel(new SQLPlayer(UUID.randomUUID()));
         }
         Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current));
 
