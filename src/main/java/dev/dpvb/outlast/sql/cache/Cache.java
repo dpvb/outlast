@@ -21,7 +21,7 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
      * @param model a model object
      * @return the primary key
      */
-    protected abstract K getKey(V model);
+    protected abstract K extractKey(V model);
 
     /**
      * Makes a new model object initialized with the provided key.
@@ -34,7 +34,7 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
     public void load() {
         final List<V> models = controller.getModels();
         for (V model : models) {
-            modelMap.put(getKey(model), model);
+            modelMap.put(extractKey(model), model);
         }
     }
 

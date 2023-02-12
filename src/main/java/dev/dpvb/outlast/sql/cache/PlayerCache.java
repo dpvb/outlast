@@ -12,7 +12,7 @@ public class PlayerCache extends Cache<PlayerController, UUID, SQLPlayer> {
     }
 
     @Override
-    protected UUID getKey(SQLPlayer model) {
+    protected UUID extractKey(SQLPlayer model) {
         return model.getUuid();
     }
 
