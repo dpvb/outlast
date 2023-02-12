@@ -44,7 +44,7 @@ public class SQLService {
         if (connection != null) {
             Bukkit.getLogger().info("Disconnected from Database");
             connection.close();
-            // FIXME set started to false?
+            started = false;
         }
     }
 
