@@ -165,6 +165,7 @@ class Commands {
     @CommandDescription("Teleports to the named player silently (without requesting)")
     @CommandPermission("outlast.admin")
     public void teleportOverride(CommandSender sender, @NotNull @Argument("player") Player target) {
+        ((Player) sender).teleport(target);
     }
 
     @CommandMethod(value = "test", requiredSender = Player.class)
