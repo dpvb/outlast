@@ -1,5 +1,6 @@
 package dev.dpvb.outlast.sql.models;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +9,7 @@ import java.util.Objects;
 public class SQLLocation {
 
     private final @NotNull String loc_name;
-    private @NotNull String world;
+    private String world;
     private double x;
     private double y;
     private double z;
@@ -26,6 +27,18 @@ public class SQLLocation {
      */
     public SQLLocation(@NotNull String loc_name, @NotNull Location location) {
         this.loc_name = loc_name;
+        setLocation(location);
+    }
+
+    public @NotNull String getLoc_name() {
+        return loc_name;
+    }
+
+    public @NotNull Location getLocation() {
+        return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
+    }
+
+    public void setLocation(@NotNull Location location) {
         this.world = Objects.requireNonNull(location.getWorld(), "location must have a world").getName();
         this.x = location.getX();
         this.y = location.getY();

@@ -18,7 +18,7 @@ public final class SQLPlayer {
         this.uuid = uuid;
     }
 
-    public UUID getUuid() {
+    public @NotNull UUID getUuid() {
         return uuid;
     }
 
