@@ -29,8 +29,7 @@ public class PlayerCache {
     public void updateSQLPlayer(UUID uuid, Consumer<SQLPlayer> consumer) {
         final SQLPlayer sqlPlayer = playerMap.get(uuid);
         if (sqlPlayer == null) {
-            // TODO throw something here???
-            return;
+            throw new IllegalStateException("Couldn't find a SQLPlayer with this UUID though it should be cached.");
         }
 
         consumer.accept(sqlPlayer);

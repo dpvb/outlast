@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 class Commands {
 
@@ -172,11 +173,6 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
-        SQLPlayer sqlPlayer = SQLService.getInstance().getPlayerController().getPlayer(UUID.fromString("4a31e0e5-6852-4f22-8a6c-2c2fca576574"));
-        if (sqlPlayer != null) {
-            player.sendMessage(sqlPlayer.toString());
-        }
-
         List<SQLPlayer> players = SQLService.getInstance().getPlayerController().getPlayers();
         for (SQLPlayer player1 : players) {
             player.sendMessage(player1.toString());
