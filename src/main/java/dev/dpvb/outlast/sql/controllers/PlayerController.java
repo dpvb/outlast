@@ -97,4 +97,15 @@ public class PlayerController {
         }
     }
 
+    public void insertPlayer(UUID uuid) {
+        try {
+            final PreparedStatement ps = connection.prepareStatement("INSERT INTO player(player_uuid) VALUES (UUID_TO_BIN(?))");
+            ps.setString(1, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("insertPlayer failed.");
+            throw new RuntimeException(e);
+        }
+    }
+
 }

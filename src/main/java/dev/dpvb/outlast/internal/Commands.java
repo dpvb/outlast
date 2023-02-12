@@ -177,5 +177,17 @@ class Commands {
         for (SQLPlayer player1 : players) {
             player.sendMessage(player1.toString());
         }
+
+        long current = System.currentTimeMillis();
+        for (int i = 0; i <= 100; i++) {
+            SQLService.getInstance().getPlayerController().insertPlayer(UUID.randomUUID());
+        }
+        Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current));
+
+        long current2 = System.currentTimeMillis();
+        for (int i = 0; i <= 100; i++) {
+            SQLService.getInstance().getPlayerCache().createSQLPlayer(UUID.randomUUID());
+        }
+        Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current2));
     }
 }

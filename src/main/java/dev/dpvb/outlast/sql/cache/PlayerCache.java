@@ -35,4 +35,8 @@ public class PlayerCache {
         consumer.accept(sqlPlayer);
     }
 
+    public void createSQLPlayer(UUID uuid) {
+        playerMap.put(uuid, new SQLPlayer(uuid));
+    }
+
 }
