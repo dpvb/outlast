@@ -34,6 +34,30 @@ public class SQLLocation {
         return loc_name;
     }
 
+    public String getWorld() {
+        return world;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
     public @NotNull Location getLocation() {
         return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
     }
