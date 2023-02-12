@@ -3,6 +3,8 @@ package dev.dpvb.outlast.sql.models;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class SQLLocation {
 
     private final @NotNull String loc_name;
@@ -13,9 +15,18 @@ public class SQLLocation {
     private float yaw;
     private float pitch;
 
-    public SQLLocation(String loc_name, Location location) {
+    /**
+     * Creates a named location persistence object.
+     * <p>
+     * The supplied Bukkit location must have a world component.
+     *
+     * @param loc_name a name for the location
+     * @param location a bukkit location
+     * @throws NullPointerException if {@code location} does not have a world
+     */
+    public SQLLocation(@NotNull String loc_name, @NotNull Location location) {
         this.loc_name = loc_name;
-        this.world = location.getWorld().toString();
+        this.world = Objects.requireNonNull(location.getWorld(), "location must have a world").getName();
         this.x = location.getX();
         this.y = location.getY();
         this.z = location.getZ();
@@ -30,6 +41,7 @@ public class SQLLocation {
 
         SQLLocation sqlLocation = (SQLLocation) o;
 
+        if (!loc_name.equals(sqlLocation.loc_name)) return false;
         if (!world.equals(sqlLocation.world)) return false;
         if (x != sqlLocation.x) return false;
         if (y != sqlLocation.y) return false;
