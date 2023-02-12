@@ -185,7 +185,7 @@ class Commands {
 
         long current2 = System.currentTimeMillis();
         for (int i = 0; i <= 100; i++) {
-            SQLService.getInstance().getPlayerCache().createSQLPlayer(UUID.randomUUID());
+            SQLService.getInstance().getPlayerCache().createModel(UUID.randomUUID());
         }
         Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current2));
     }
