@@ -32,7 +32,7 @@ public class TeamController extends Controller<String, SQLTeam> {
             if (rs.first()) {
                 final SQLTeam sqlTeam = new SQLTeam(name);
                 sqlTeam.setLeader(UUID.nameUUIDFromBytes(rs.getBytes("team_leader")));
-                sqlTeam.setHomeLocationName(rs.getString("home_location_name"));
+                sqlTeam.setHomeLocationName(rs.getString("home_loc_name"));
                 return sqlTeam;
             }
         } catch (SQLException e) {
@@ -52,7 +52,7 @@ public class TeamController extends Controller<String, SQLTeam> {
                 teams.add(new SQLTeam(
                         rs.getString(PK),
                         UUID.nameUUIDFromBytes(rs.getBytes("team_leader")),
-                        rs.getString("home_location_name")
+                        rs.getString("home_loc_name")
                 ));
             }
         } catch (SQLException e) {
@@ -67,7 +67,7 @@ public class TeamController extends Controller<String, SQLTeam> {
         try {
             final PreparedStatement ps = connection.prepareStatement(
                     "UPDATE " + TABLE +
-                            " SET team_leader = UUID_TO_BIN(?), home_location_name = ?" +
+                            " SET team_leader = UUID_TO_BIN(?), home_loc_name = ?" +
                             " WHERE " + PK + " = ?"
             );
             ps.setString(1, sqlTeam.getLeader().toString());
@@ -83,7 +83,7 @@ public class TeamController extends Controller<String, SQLTeam> {
     @Override
     public void insertModel(SQLTeam sqlTeam) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + "(" + PK + ") VALUES (?, UUID_TO_BIN(?), ?)");
+            final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + " VALUES (?, UUID_TO_BIN(?), ?)");
             ps.setString(1, sqlTeam.getName());
             ps.setString(2, sqlTeam.getLeader().toString());
             ps.setString(3, sqlTeam.getHomeLocationName());

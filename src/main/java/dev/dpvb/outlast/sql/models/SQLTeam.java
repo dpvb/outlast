@@ -58,13 +58,15 @@ public final class SQLTeam {
         SQLTeam team = (SQLTeam) o;
 
         if (!name.equals(team.name)) return false;
-        return Objects.equals(leader, team.leader);
+        if (!Objects.equals(leader, team.leader)) return false;
+        return Objects.equals(homeLocationName, team.homeLocationName);
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
         result = 31 * result + Objects.hashCode(leader);
+        result = 31 * result + Objects.hashCode(homeLocationName);
         return result;
     }
 

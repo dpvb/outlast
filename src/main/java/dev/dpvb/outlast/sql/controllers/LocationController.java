@@ -95,7 +95,7 @@ public class LocationController extends Controller<String, SQLLocation> {
     @Override
     public void insertModel(SQLLocation sqlLocation) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + "(" + PK + ") VALUES (?, ?, ?, ?, ?, ?, ?)");
+            final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + " VALUES (?, ?, ?, ?, ?, ?, ?)");
             ps.setString(1, sqlLocation.getLoc_name());
             ps.setString(2, sqlLocation.getWorld());
             ps.setDouble(3, sqlLocation.getX());

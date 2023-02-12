@@ -101,8 +101,13 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     @Override
     public void insertModel(SQLPlayer sqlPlayer) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("INSERT INTO player(player_uuid) VALUES (UUID_TO_BIN(?))");
+            final PreparedStatement ps = connection.prepareStatement("INSERT INTO player VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?)");
             ps.setString(1, sqlPlayer.getUuid().toString());
+            ps.setShort(2, sqlPlayer.getKills());
+            ps.setShort(3, sqlPlayer.getDeaths());
+            ps.setInt(4, sqlPlayer.getCoins());
+            ps.setByte(5, sqlPlayer.getStrengthModifier());
+            ps.setString(6, sqlPlayer.getTeam());
             ps.executeUpdate();
         } catch (SQLException e) {
             Bukkit.getLogger().severe("insertPlayer failed.");
