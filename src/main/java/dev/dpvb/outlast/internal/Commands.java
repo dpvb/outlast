@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 class Commands {
 
@@ -173,14 +172,14 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
-        List<SQLPlayer> players = SQLService.getInstance().getPlayerController().getPlayers();
+        List<SQLPlayer> players = SQLService.getInstance().getPlayerController().getModels();
         for (SQLPlayer player1 : players) {
             player.sendMessage(player1.toString());
         }
 
         long current = System.currentTimeMillis();
         for (int i = 0; i <= 100; i++) {
-            SQLService.getInstance().getPlayerController().insertPlayer(UUID.randomUUID());
+            SQLService.getInstance().getPlayerController().insertModel(UUID.randomUUID());
         }
         Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current));
 

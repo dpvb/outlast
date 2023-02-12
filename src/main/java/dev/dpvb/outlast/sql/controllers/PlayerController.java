@@ -15,12 +15,10 @@ import java.util.UUID;
 /**
  * Interacts with the database to retrieve player stat models.
  */
-public class PlayerController {
-
-    private final Connection connection;
+public class PlayerController extends Controller<UUID, SQLPlayer> {
 
     public PlayerController(Connection connection) {
-        this.connection = connection;
+        super(connection);
     }
 
     /**
@@ -31,7 +29,8 @@ public class PlayerController {
      * @param uuid the UniqueID of the player
      * @return a player stat model for {@code uuid} or null
      */
-    public @Nullable SQLPlayer getPlayer(UUID uuid) {
+    @Override
+    public @Nullable SQLPlayer getModel(UUID uuid) {
         try {
             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player WHERE player_uuid = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, uuid.toString());
@@ -58,7 +57,8 @@ public class PlayerController {
      *
      * @return a list of player stat models
      */
-    public List<SQLPlayer> getPlayers() {
+    @Override
+    public List<SQLPlayer> getModels() {
         final List<SQLPlayer> players = new ArrayList<>();
         try {
             final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player");
@@ -81,7 +81,8 @@ public class PlayerController {
         return players;
     }
 
-    public void updatePlayer(SQLPlayer sqlPlayer) {
+    @Override
+    public void updateModel(SQLPlayer sqlPlayer) {
         try {
             final PreparedStatement ps = connection.prepareStatement("UPDATE player SET kills = ?, deaths = ?, coins = ?, strength_modifier = ?, team_name = ? WHERE player_uuid = UUID_TO_BIN(?)");
             ps.setShort(1, sqlPlayer.getKills());
@@ -97,7 +98,8 @@ public class PlayerController {
         }
     }
 
-    public void insertPlayer(UUID uuid) {
+    @Override
+    public void insertModel(UUID uuid) {
         try {
             final PreparedStatement ps = connection.prepareStatement("INSERT INTO player(player_uuid) VALUES (UUID_TO_BIN(?))");
             ps.setString(1, uuid.toString());

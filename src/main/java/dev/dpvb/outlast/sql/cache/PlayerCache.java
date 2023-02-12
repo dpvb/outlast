@@ -1,6 +1,5 @@
 package dev.dpvb.outlast.sql.cache;
 
-import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.controllers.PlayerController;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 
@@ -20,7 +19,7 @@ public class PlayerCache {
     }
 
     public void load() {
-        final List<SQLPlayer> sqlPlayers = playerController.getPlayers();
+        final List<SQLPlayer> sqlPlayers = playerController.getModels();
         for (SQLPlayer sqlPlayer : sqlPlayers) {
             playerMap.put(sqlPlayer.getUuid(), sqlPlayer);
         }
