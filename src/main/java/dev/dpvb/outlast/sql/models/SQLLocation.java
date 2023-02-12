@@ -16,6 +16,14 @@ public class SQLLocation {
     private float yaw;
     private float pitch;
 
+    /**
+     * Creates a named location persistence object.
+     * <p>
+     * <strong>{@link #setLocation(Location)} must be called to completely
+     * initialize this object properly.</strong>
+     *
+     * @param loc_name a name for the location
+     */
     public SQLLocation(@NotNull String loc_name) {
         this.loc_name = loc_name;
     }

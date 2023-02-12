@@ -9,10 +9,19 @@ public final class SQLTeam {
     private final @NotNull String name;
     private UUID leader;
 
+    /**
+     * Creates a new team persistence object.
+     * <p>
+     * <strong>{@link #setLeader(UUID)} must be called to completely initialize
+     * this object properly.</strong>
+     *
+     * @param name a team name
+     */
     public SQLTeam(@NotNull String name) {
         this.name = name;
     }
 
+    // suitable for unmarshalling
     public SQLTeam(@NotNull String name, @NotNull UUID leader) {
         this.name = name;
         this.leader = leader;
