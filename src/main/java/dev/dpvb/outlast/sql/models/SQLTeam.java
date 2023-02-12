@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.sql.models;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 public final class SQLTeam {
     private final @NotNull String name;
     private UUID leader;
+    private String homeLocationName;
 
     /**
      * Creates a new team persistence object.
@@ -22,9 +24,10 @@ public final class SQLTeam {
     }
 
     // suitable for unmarshalling
-    public SQLTeam(@NotNull String name, @NotNull UUID leader) {
+    public SQLTeam(@NotNull String name, @NotNull UUID leader, @Nullable String homeLocationName) {
         this.name = name;
         this.leader = leader;
+        this.homeLocationName = homeLocationName;
     }
 
     public @NotNull String getName() {
@@ -37,6 +40,14 @@ public final class SQLTeam {
 
     public void setLeader(@NotNull UUID leader) {
         this.leader = leader;
+    }
+
+    public @Nullable String getHomeLocationName() {
+        return homeLocationName;
+    }
+
+    public void setHomeLocationName(@Nullable String homeLocationName) {
+        this.homeLocationName = homeLocationName;
     }
 
     @Override

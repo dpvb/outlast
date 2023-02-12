@@ -32,7 +32,7 @@ public class TeamController extends Controller<String, SQLTeam> {
             if (rs.first()) {
                 final SQLTeam sqlTeam = new SQLTeam(name);
                 sqlTeam.setLeader(UUID.nameUUIDFromBytes(rs.getBytes("team_leader")));
-                // FIXME add home_location_name to model
+                sqlTeam.setHomeLocationName(rs.getString("home_location_name"));
                 return sqlTeam;
             }
         } catch (SQLException e) {
@@ -51,8 +51,9 @@ public class TeamController extends Controller<String, SQLTeam> {
             while (rs.next()) {
                 teams.add(new SQLTeam(
                         rs.getString(PK),
-                        UUID.nameUUIDFromBytes(rs.getBytes("team_leader"))
-                )); // FIXME add home_location_name to model
+                        UUID.nameUUIDFromBytes(rs.getBytes("team_leader")),
+                        rs.getString("home_location_name")
+                ));
             }
         } catch (SQLException e) {
             Bukkit.getLogger().severe("getTeams failed.");
@@ -70,7 +71,7 @@ public class TeamController extends Controller<String, SQLTeam> {
                             " WHERE " + PK + " = ?"
             );
             ps.setString(1, sqlTeam.getLeader().toString());
-            ps.setString(2, "FIXME"); // FIXME add home_location_name to model
+            ps.setString(2, sqlTeam.getHomeLocationName());
             ps.setString(3, sqlTeam.getName());
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -85,7 +86,7 @@ public class TeamController extends Controller<String, SQLTeam> {
             final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + "(" + PK + ") VALUES (?, UUID_TO_BIN(?), ?)");
             ps.setString(1, sqlTeam.getName());
             ps.setString(2, sqlTeam.getLeader().toString());
-            ps.setString(3, "FIXME"); // FIXME add home_location_name to model
+            ps.setString(3, sqlTeam.getHomeLocationName());
             ps.executeUpdate();
         } catch (SQLException e) {
             Bukkit.getLogger().severe("insertTeam failed.");
