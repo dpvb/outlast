@@ -2,11 +2,16 @@ package dev.dpvb.outlast.sql.models;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public final class SQLTeam {
     private final @NotNull String name;
-    private @NotNull UUID leader;
+    private UUID leader;
+
+    public SQLTeam(@NotNull String name) {
+        this.name = name;
+    }
 
     public SQLTeam(@NotNull String name, @NotNull UUID leader) {
         this.name = name;
@@ -18,7 +23,7 @@ public final class SQLTeam {
     }
 
     public @NotNull UUID getLeader() {
-        return leader;
+        return Objects.requireNonNull(leader, "leader has not been set!");
     }
 
     public void setLeader(@NotNull UUID leader) {
@@ -33,13 +38,13 @@ public final class SQLTeam {
         SQLTeam team = (SQLTeam) o;
 
         if (!name.equals(team.name)) return false;
-        return leader.equals(team.leader);
+        return Objects.equals(leader, team.leader);
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
-        result = 31 * result + leader.hashCode();
+        result = 31 * result + Objects.hashCode(leader);
         return result;
     }
 

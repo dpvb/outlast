@@ -16,6 +16,10 @@ public class SQLLocation {
     private float yaw;
     private float pitch;
 
+    public SQLLocation(@NotNull String loc_name) {
+        this.loc_name = loc_name;
+    }
+
     /**
      * Creates a named location persistence object.
      * <p>
@@ -30,12 +34,23 @@ public class SQLLocation {
         setLocation(location);
     }
 
+    // for unmarshalling
+    public SQLLocation(@NotNull String loc_name, @NotNull String world, double x, double y, double z, float yaw, float pitch) {
+        this.loc_name = loc_name;
+        this.world = world;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
+
     public @NotNull String getLoc_name() {
         return loc_name;
     }
 
-    public String getWorld() {
-        return world;
+    public @NotNull String getWorld() {
+        return Objects.requireNonNull(world, "world has not been set!");
     }
 
     public double getX() {
@@ -59,7 +74,7 @@ public class SQLLocation {
     }
 
     public @NotNull Location getLocation() {
-        return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
+        return new Location(Bukkit.getWorld(getWorld()), x, y, z, yaw, pitch);
     }
 
     public void setLocation(@NotNull Location location) {
@@ -79,7 +94,7 @@ public class SQLLocation {
         SQLLocation sqlLocation = (SQLLocation) o;
 
         if (!loc_name.equals(sqlLocation.loc_name)) return false;
-        if (!world.equals(sqlLocation.world)) return false;
+        if (!Objects.equals(world, sqlLocation.world)) return false;
         if (x != sqlLocation.x) return false;
         if (y != sqlLocation.y) return false;
         if (z != sqlLocation.z) return false;
@@ -90,7 +105,7 @@ public class SQLLocation {
     @Override
     public int hashCode() {
         int result = loc_name.hashCode();
-        result = 31 * result + world.hashCode();
+        result = 31 * result + Objects.hashCode(world);
         result = 31 * result + (int) x;
         result = 31 * result + (int) y;
         result = 31 * result + (int) z;
