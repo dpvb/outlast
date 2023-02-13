@@ -3,14 +3,27 @@ package dev.dpvb.outlast.internal;
 import cloud.commandframework.annotations.*;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.meta.SimpleCommandMeta;
+import cloud.commandframework.paper.PaperCommandManager;
+import dev.dpvb.outlast.teleportation.TeleportRequest;
+import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 class Commands {
+
+    Commands() {}
+
+    public void initCommands(Plugin plugin) throws Exception {
+        final PaperCommandManager<CommandSender> manager = PaperCommandManager.createNative(plugin, CommandExecutionCoordinator.simpleCoordinator());
+        new AnnotationParser<>(manager, CommandSender.class, parameters -> SimpleCommandMeta.empty()).parse(this);
+    }
 
     @Suggestions("team-members")
     public List<String> teamMembers(CommandContext<CommandSender> sender, String input) {
@@ -21,11 +34,32 @@ class Commands {
     @CommandMethod(value = "tp <player>", requiredSender = Player.class)
     @CommandDescription("Sends a teleport request to the named player")
     public void teleport(CommandSender sender, @NotNull @Argument("player") Player target) {
+        final Player player = (Player) sender;
+        final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
+        player.sendPlainMessage("This request will expire in " + TeleportRequest.TIMEOUT + " seconds.");
     }
 
     @CommandMethod(value = "tpaccept", requiredSender = Player.class)
     @CommandDescription("Accepts any teleport request sent to you")
     public void acceptTeleports(CommandSender sender) {
+        final Player player = (Player) sender;
+        final var teleportRequest = TeleportService.getInstance().getPendingRequests(player).poll();
+        if (teleportRequest == null) {
+            player.sendPlainMessage("You have no pending teleport requests.");
+            return;
+        }
+        if (teleportRequest.getState() == TeleportRequest.State.SENT) {
+            if (teleportRequest.accept()) {
+                player.sendPlainMessage("Teleport request accepted.");
+                return;
+            }
+        }
+        player.sendPlainMessage("The teleport request " + switch (teleportRequest.getState()) {
+            case SENT -> new IllegalStateException();
+            case ACCEPTED -> "was already accepted.";
+            case DENIED -> "was denied.";
+            case EXPIRED -> "expired.";
+        });
     }
 
     @CommandMethod(value = "spawn", requiredSender = Player.class)
@@ -76,6 +110,12 @@ class Commands {
     @CommandMethod(value = "team home", requiredSender = Player.class)
     @CommandDescription("Teleports you to your team's home location if one is set")
     public void teamHome(CommandSender sender) {
+        final Player player = (Player) sender;
+        // TODO Check for team
+        final var pendingTeleport = TeleportService.getInstance().teleportHome(player);
+        if (pendingTeleport == null) {
+            player.sendPlainMessage("Your team does not have a home set.");
+        }
     }
 
     @CommandMethod(value = "team help", requiredSender = Player.class)
@@ -121,5 +161,13 @@ class Commands {
     @CommandDescription("Teleports to the named player silently (without requesting)")
     @CommandPermission("outlast.admin")
     public void teleportOverride(CommandSender sender, @NotNull @Argument("player") Player target) {
+        ((Player) sender).teleport(target);
+    }
+
+    @CommandMethod(value = "test", requiredSender = Player.class)
+    @CommandDescription("Outlast test method!")
+    @CommandPermission("outlast.test")
+    public void test(CommandSender sender) {
+        final Player player = (Player) sender;
     }
 }

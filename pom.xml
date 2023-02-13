@@ -62,11 +62,6 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        <!-- ProtocolLib repo -->
-        <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -87,13 +82,6 @@
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-annotations</artifactId>
             <version>${cloud.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packet utilities -->
-        <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>4.8.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
