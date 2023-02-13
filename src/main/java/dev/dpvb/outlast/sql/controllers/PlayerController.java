@@ -17,6 +17,9 @@ import java.util.UUID;
  */
 public class PlayerController extends Controller<UUID, SQLPlayer> {
 
+    public static final String TABLE = "player";
+    public static final String PK = "player_uuid";
+
     public PlayerController(Connection connection) {
         super(connection);
     }
@@ -32,7 +35,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     @Override
     public @Nullable SQLPlayer getModel(UUID uuid) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player WHERE player_uuid = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + TABLE + " WHERE " + PK + " = UUID_TO_BIN(?)", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, uuid.toString());
             final ResultSet rs = ps.executeQuery();
             if (rs.first()) {
@@ -61,7 +64,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     public List<SQLPlayer> getModels() {
         final List<SQLPlayer> players = new ArrayList<>();
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM player");
+            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + TABLE);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 final UUID uuid = UUID.nameUUIDFromBytes(rs.getBytes("player_uuid"));
@@ -84,7 +87,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     @Override
     public void updateModel(SQLPlayer sqlPlayer) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("UPDATE player SET kills = ?, deaths = ?, coins = ?, strength_modifier = ?, team_name = ? WHERE player_uuid = UUID_TO_BIN(?)");
+            final PreparedStatement ps = connection.prepareStatement("UPDATE " + TABLE + " SET kills = ?, deaths = ?, coins = ?, strength_modifier = ?, team_name = ? WHERE player_uuid = UUID_TO_BIN(?)");
             ps.setShort(1, sqlPlayer.getKills());
             ps.setShort(2, sqlPlayer.getDeaths());
             ps.setInt(3, sqlPlayer.getCoins());
@@ -101,7 +104,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     @Override
     public void insertModel(SQLPlayer sqlPlayer) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("INSERT INTO player VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?)");
+            final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + " VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?)");
             ps.setString(1, sqlPlayer.getUuid().toString());
             ps.setShort(2, sqlPlayer.getKills());
             ps.setShort(3, sqlPlayer.getDeaths());
@@ -115,4 +118,15 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
         }
     }
 
+    @Override
+    public void deleteModel(UUID uuid) {
+        try {
+            final PreparedStatement ps = connection.prepareStatement("DELETE FROM " + TABLE + " WHERE " + PK + " = UUID_TO_BIN(?)");
+            ps.setString(1, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("deleteLocation failed.");
+            throw new RuntimeException(e);
+        }
+    }
 }

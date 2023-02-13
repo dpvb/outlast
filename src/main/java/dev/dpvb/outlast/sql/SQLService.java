@@ -2,7 +2,9 @@ package dev.dpvb.outlast.sql;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
+import dev.dpvb.outlast.sql.controllers.LocationController;
 import dev.dpvb.outlast.sql.controllers.PlayerController;
+import dev.dpvb.outlast.sql.controllers.TeamController;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
@@ -16,6 +18,8 @@ public class SQLService {
     private Connection connection;
 
     private PlayerController playerController;
+    private LocationController locationController;
+    private TeamController teamController;
     private PlayerCache playerCache;
 
     /**
@@ -32,6 +36,8 @@ public class SQLService {
 
         // Create Controllers
         playerController = new PlayerController(connection);
+        locationController = new LocationController(connection);
+        teamController = new TeamController(connection);
 
         // Create Cache
         playerCache = new PlayerCache(playerController);
@@ -58,6 +64,14 @@ public class SQLService {
 
     public PlayerCache getPlayerCache() {
         return playerCache;
+    }
+
+    public LocationController getLocationController() {
+        return locationController;
+    }
+
+    public TeamController getTeamController() {
+        return teamController;
     }
 
     public static SQLService getInstance() {

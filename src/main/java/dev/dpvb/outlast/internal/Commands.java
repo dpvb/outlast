@@ -7,7 +7,9 @@ import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
 import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
+import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.Bukkit;
@@ -173,21 +175,5 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
-        List<SQLPlayer> players = SQLService.getInstance().getPlayerController().getModels();
-        for (SQLPlayer player1 : players) {
-            player.sendMessage(player1.toString());
-        }
-
-        long current = System.currentTimeMillis();
-        for (int i = 0; i <= 100; i++) {
-            SQLService.getInstance().getPlayerController().insertModel(new SQLPlayer(UUID.randomUUID()));
-        }
-        Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current));
-
-        long current2 = System.currentTimeMillis();
-        for (int i = 0; i <= 100; i++) {
-            SQLService.getInstance().getPlayerCache().createModel(UUID.randomUUID());
-        }
-        Bukkit.getLogger().info("ELAPSED: " + (System.currentTimeMillis() - current2));
     }
 }

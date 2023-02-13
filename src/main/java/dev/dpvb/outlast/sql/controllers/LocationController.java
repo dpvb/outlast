@@ -110,4 +110,15 @@ public class LocationController extends Controller<String, SQLLocation> {
         }
     }
 
+    @Override
+    public void deleteModel(String name) {
+        try {
+            final PreparedStatement ps = connection.prepareStatement("DELETE FROM " + TABLE + " WHERE " + PK + " = (?)");
+            ps.setString(1, name);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("deleteLocation failed.");
+            throw new RuntimeException(e);
+        }
+    }
 }

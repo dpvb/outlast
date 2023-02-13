@@ -94,4 +94,15 @@ public class TeamController extends Controller<String, SQLTeam> {
         }
     }
 
+    @Override
+    public void deleteModel(String teamName) {
+        try {
+            final PreparedStatement ps = connection.prepareStatement("DELETE FROM " + TABLE + " WHERE team_name = (?)");
+            ps.setString(1, teamName);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("deleteLocation failed.");
+            throw new RuntimeException(e);
+        }
+    }
 }
