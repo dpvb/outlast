@@ -16,7 +16,7 @@ public class FirstTimeJoin implements Listener {
         final PlayerCache cache = SQLService.getInstance().getPlayerCache();
         final Player player = event.getPlayer();
         if (cache.getModel(player.getUniqueId()) == null) {
-            // Player does not exist in DB
+            // Player does not exist in DB, so create it.
             cache.createModel(player.getUniqueId());
             Bukkit.getLogger().info("Player entry added for UUID: " + player.getUniqueId());
         }
