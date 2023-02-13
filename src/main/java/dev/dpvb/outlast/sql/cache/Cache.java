@@ -49,4 +49,12 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
     public void createModel(K key) {
         modelMap.put(key, createNewModel(key));
     }
+
+    public V deleteModel(K key) {
+        final V remove = modelMap.remove(key);
+        if (remove != null) {
+            controller.deleteModel(key);
+        }
+        return remove;
+    }
 }

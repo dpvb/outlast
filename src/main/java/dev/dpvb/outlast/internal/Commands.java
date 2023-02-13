@@ -7,6 +7,7 @@ import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
 import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
@@ -175,5 +176,15 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
+
+        final SQLService sql = SQLService.getInstance();
+        final PlayerCache playerCache = sql.getPlayerCache();
+
+        playerCache.createModel(player.getUniqueId());
+
+        // - logic for team disband
+        playerCache.updateModel(player.getUniqueId(), p -> {
+            p.setTeam(null);
+        });
     }
 }
