@@ -3,6 +3,8 @@ package dev.dpvb.outlast.sql.models;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -12,6 +14,8 @@ public final class SQLPlayer {
     private short deaths = 0;
     private int coins = 0;
     private byte strengthModifier = 0;
+    private Date first_join_time = Date.from(Instant.now());
+    private Date last_join_time = Date.from(Instant.now());
     private @Nullable String team;
 
     public SQLPlayer(@NotNull UUID uuid) {
@@ -52,6 +56,22 @@ public final class SQLPlayer {
 
     public void setStrengthModifier(byte strengthModifier) {
         this.strengthModifier = strengthModifier;
+    }
+
+    public Date getFirst_join_time() {
+        return first_join_time;
+    }
+
+    public void setFirst_join_time(Date first_join_time) {
+        this.first_join_time = first_join_time;
+    }
+
+    public Date getLast_join_time() {
+        return last_join_time;
+    }
+
+    public void setLast_join_time(Date last_join_time) {
+        this.last_join_time = last_join_time;
     }
 
     public @Nullable String getTeam() {

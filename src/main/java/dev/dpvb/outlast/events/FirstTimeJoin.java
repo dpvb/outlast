@@ -8,6 +8,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.UUID;
+
 public class FirstTimeJoin implements Listener {
 
     @EventHandler
@@ -15,11 +19,16 @@ public class FirstTimeJoin implements Listener {
         // Check if they have a Player Info model!
         final PlayerCache cache = SQLService.getInstance().getPlayerCache();
         final Player player = event.getPlayer();
-        if (cache.getModel(player.getUniqueId()) == null) {
+        final UUID uuid = player.getUniqueId();
+        if (cache.getModel(uuid) == null) {
             // Player does not exist in DB, so create it.
-            cache.createModel(player.getUniqueId());
-            Bukkit.getLogger().info("Player entry added for UUID: " + player.getUniqueId());
+            cache.createModel(uuid);
+            Bukkit.getLogger().info("Player entry added for UUID: " + uuid);
         }
+
+        cache.updateModel(uuid, sqlPlayer -> {
+            sqlPlayer.setLast_join_time(Date.from(Instant.now()));
+        });
     }
 
 }
