@@ -1,6 +1,8 @@
 package dev.dpvb.outlast.internal;
 
+import dev.dpvb.outlast.events.FirstTimeJoin;
 import dev.dpvb.outlast.sql.SQLService;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,6 +18,8 @@ public class OutlastPlugin extends JavaPlugin {
         setupDatabase();
         // Setup Commands
         setupCommands();
+        // Setup Listeners
+        setupListeners();
     }
 
     @Override
@@ -55,6 +59,10 @@ public class OutlastPlugin extends JavaPlugin {
             this.getLogger().severe("Failed to initialize the command manager.");
             throw new IllegalStateException(e);
         }
+    }
+
+    private void setupListeners() {
+        Bukkit.getPluginManager().registerEvents(new FirstTimeJoin(), this);
     }
 
     public static class Configuration {
