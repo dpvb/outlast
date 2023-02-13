@@ -21,4 +21,8 @@ public class PlayerCache extends Cache<PlayerController, UUID, SQLPlayer> {
         return new SQLPlayer(key);
     }
 
+    @Override
+    protected String getType() {
+        return "Player";
+    }
 }

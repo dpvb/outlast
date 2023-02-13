@@ -64,10 +64,10 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     public List<SQLPlayer> getModels() {
         final List<SQLPlayer> players = new ArrayList<>();
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + TABLE);
+            final PreparedStatement ps = connection.prepareStatement("SELECT BIN_TO_UUID(player_uuid) as player_uuid, kills, deaths, coins, strength_modifier, team_name FROM " + TABLE);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                final UUID uuid = UUID.nameUUIDFromBytes(rs.getBytes("player_uuid"));
+                final UUID uuid = UUID.fromString(rs.getString("player_uuid"));
                 final SQLPlayer sqlPlayer = new SQLPlayer(uuid);
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));

@@ -176,15 +176,5 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
-
-        final SQLService sql = SQLService.getInstance();
-        final PlayerCache playerCache = sql.getPlayerCache();
-
-        playerCache.createModel(player.getUniqueId());
-
-        // - logic for team disband
-        playerCache.updateModel(player.getUniqueId(), p -> {
-            p.setTeam(null);
-        });
     }
 }

@@ -1,7 +1,9 @@
 package dev.dpvb.outlast.sql;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
+import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.controllers.LocationController;
 import dev.dpvb.outlast.sql.controllers.PlayerController;
 import dev.dpvb.outlast.sql.controllers.TeamController;
@@ -17,10 +19,9 @@ public class SQLService {
     private boolean started = false;
     private Connection connection;
 
-    private PlayerController playerController;
-    private LocationController locationController;
-    private TeamController teamController;
     private PlayerCache playerCache;
+    private LocationCache locationCache;
+    private TeamCache teamCache;
 
     /**
      * Opens a connection to the MySQL Database and initializes controllers.
@@ -34,14 +35,13 @@ public class SQLService {
         connection = DriverManager.getConnection(getConnectionString());
         Bukkit.getLogger().info("Connected to Database");
 
-        // Create Controllers
-        playerController = new PlayerController(connection);
-        locationController = new LocationController(connection);
-        teamController = new TeamController(connection);
-
         // Create Cache
-        playerCache = new PlayerCache(playerController);
+        playerCache = new PlayerCache(new PlayerController(connection));
         playerCache.load();
+        teamCache = new TeamCache(new TeamController(connection));
+        teamCache.load();
+        locationCache = new LocationCache(new LocationController(connection));
+        locationCache.load();
 
         started = true;
     }
@@ -58,20 +58,16 @@ public class SQLService {
         return OutlastPlugin.Configuration.getMySQLConnString();
     }
 
-    public PlayerController getPlayerController() {
-        return playerController;
-    }
-
     public PlayerCache getPlayerCache() {
         return playerCache;
     }
 
-    public LocationController getLocationController() {
-        return locationController;
+    public LocationCache getLocationCache() {
+        return locationCache;
     }
 
-    public TeamController getTeamController() {
-        return teamController;
+    public TeamCache getTeamCache() {
+        return teamCache;
     }
 
     public static SQLService getInstance() {

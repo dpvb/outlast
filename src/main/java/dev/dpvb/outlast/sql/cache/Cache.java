@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.sql.cache;
 
 import dev.dpvb.outlast.sql.controllers.Controller;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +32,19 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
      */
     protected abstract V createNewModel(K key);
 
+    protected abstract String getType();
+
     public void load() {
         final List<V> models = controller.getModels();
         for (V model : models) {
             modelMap.put(extractKey(model), model);
         }
+
+        Bukkit.getLogger().info("Loaded " + modelMap.keySet().size() + " of " + getType());
+    }
+
+    public V getModel(K key) {
+        return modelMap.get(key);
     }
 
     public void updateModel(K key, Consumer<V> consumer) {
@@ -44,10 +53,18 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
             throw new IllegalStateException("Couldn't find a model with this key though it should be cached.");
         }
         consumer.accept(model);
+        controller.updateModel(model);
     }
 
     public void createModel(K key) {
-        modelMap.put(key, createNewModel(key));
+        createModel(key, v -> {});
+    }
+
+    public void createModel(K key, Consumer<V> consumer) {
+        final V model = createNewModel(key);
+        consumer.accept(model);
+        modelMap.put(key, model);
+        controller.insertModel(model);
     }
 
     public V deleteModel(K key) {

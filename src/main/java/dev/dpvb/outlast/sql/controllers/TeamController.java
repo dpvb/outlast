@@ -26,12 +26,12 @@ public class TeamController extends Controller<String, SQLTeam> {
     @Override
     public @Nullable SQLTeam getModel(String name) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + TABLE + " WHERE " + PK + " = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            final PreparedStatement ps = connection.prepareStatement("SELECT team_name, BIN_TO_UUID(team_leader) as team_leader, home_loc_name FROM " + TABLE + " WHERE " + PK + " = ?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setString(1, name);
             final ResultSet rs = ps.executeQuery();
             if (rs.first()) {
                 final SQLTeam sqlTeam = new SQLTeam(name);
-                sqlTeam.setLeader(UUID.nameUUIDFromBytes(rs.getBytes("team_leader")));
+                sqlTeam.setLeader(UUID.fromString(rs.getString("team_leader")));
                 sqlTeam.setHomeLocationName(rs.getString("home_loc_name"));
                 return sqlTeam;
             }
@@ -46,12 +46,12 @@ public class TeamController extends Controller<String, SQLTeam> {
     public List<SQLTeam> getModels() {
         final List<SQLTeam> teams = new ArrayList<>();
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + TABLE);
+            final PreparedStatement ps = connection.prepareStatement("SELECT team_name, BIN_TO_UUID(team_leader) as team_leader, home_loc_name FROM " + TABLE);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 teams.add(new SQLTeam(
                         rs.getString(PK),
-                        UUID.nameUUIDFromBytes(rs.getBytes("team_leader")),
+                        UUID.fromString(rs.getString("team_leader")),
                         rs.getString("home_loc_name")
                 ));
             }
