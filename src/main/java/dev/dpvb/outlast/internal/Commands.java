@@ -6,14 +6,8 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
-import dev.dpvb.outlast.sql.SQLService;
-import dev.dpvb.outlast.sql.cache.PlayerCache;
-import dev.dpvb.outlast.sql.models.SQLLocation;
-import dev.dpvb.outlast.sql.models.SQLPlayer;
-import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -21,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 class Commands {
 
