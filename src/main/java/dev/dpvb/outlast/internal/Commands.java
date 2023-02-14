@@ -6,6 +6,9 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
+import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.cache.LocationCache;
+import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.command.CommandSender;
@@ -143,6 +146,19 @@ class Commands {
     @CommandDescription("Sets the spawn location to your current location")
     @CommandPermission("outlast.admin")
     public void setSpawn(CommandSender sender) {
+        final Player player = (Player) sender;
+        final LocationCache locationCache = SQLService.getInstance().getLocationCache();
+        final SQLLocation spawn = locationCache.getModel("spawn");
+        if (spawn == null) {
+            locationCache.createModel("spawn", loc -> {
+                loc.setLocation(player.getLocation());
+            });
+        } else {
+            locationCache.updateModel("spawn", loc -> {
+                loc.setLocation(player.getLocation());
+            });
+        }
+        player.sendPlainMessage("Spawn point set.");
     }
 
     @CommandMethod(value = "vanish", requiredSender = Player.class)
