@@ -68,6 +68,15 @@ class Commands {
     @CommandMethod(value = "spawn", requiredSender = Player.class)
     @CommandDescription("Teleports you to the spawn point")
     public void spawn(CommandSender sender) {
+        //TODO fix this implementation of teleportation
+        final Player player = (Player) sender;
+        final SQLLocation spawn = SQLService.getInstance().getLocationCache().getModel("spawn");
+        if (spawn == null) {
+            player.sendPlainMessage("No spawn location set.");
+            return;
+        }
+        player.teleport(spawn.getLocation());
+        player.sendPlainMessage("Teleported to spawn.");
     }
 
     @CommandMethod(value = "report <player>", requiredSender = Player.class)
