@@ -40,10 +40,10 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));
                 sqlPlayer.setCoins(rs.getInt("coins"));
-                sqlPlayer.setStrengthModifier(rs.getByte("strength_modifier"));
+                sqlPlayer.setStrength_modifier(rs.getByte("strength_modifier"));
                 sqlPlayer.setFirst_join_time(rs.getTimestamp("first_join_time"));
                 sqlPlayer.setLast_join_time(rs.getTimestamp("last_join_time"));
-                sqlPlayer.setTeam(rs.getString("team_name"));
+                sqlPlayer.setTeam_name(rs.getString("team_name"));
                 return sqlPlayer;
             }
         } catch (SQLException e) {
@@ -71,10 +71,10 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));
                 sqlPlayer.setCoins(rs.getInt("coins"));
-                sqlPlayer.setStrengthModifier(rs.getByte("strength_modifier"));
+                sqlPlayer.setStrength_modifier(rs.getByte("strength_modifier"));
                 sqlPlayer.setFirst_join_time(rs.getTimestamp("first_join_time"));
                 sqlPlayer.setLast_join_time(rs.getTimestamp("last_join_time"));
-                sqlPlayer.setTeam(rs.getString("team_name"));
+                sqlPlayer.setTeam_name(rs.getString("team_name"));
                 players.add(sqlPlayer);
             }
         } catch (SQLException e) {
@@ -92,11 +92,11 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
             ps.setShort(1, sqlPlayer.getKills());
             ps.setShort(2, sqlPlayer.getDeaths());
             ps.setInt(3, sqlPlayer.getCoins());
-            ps.setByte(4, sqlPlayer.getStrengthModifier());
+            ps.setByte(4, sqlPlayer.getStrength_modifier());
             ps.setTimestamp(5, new Timestamp(sqlPlayer.getFirst_join_time().getTime()));
             ps.setTimestamp(6, new Timestamp(sqlPlayer.getLast_join_time().getTime()));
-            ps.setString(7, sqlPlayer.getTeam());;
-            ps.setString(8, sqlPlayer.getUuid().toString());
+            ps.setString(7, sqlPlayer.getTeam_name());
+            ps.setString(8, sqlPlayer.getPlayer_uuid().toString());
             ps.executeUpdate();
         } catch (SQLException e) {
             Bukkit.getLogger().severe("updatePlayer failed.");
@@ -108,14 +108,14 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     public void insertModel(SQLPlayer sqlPlayer) {
         try {
             final PreparedStatement ps = connection.prepareStatement("INSERT INTO " + TABLE + " VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?)");
-            ps.setString(1, sqlPlayer.getUuid().toString());
+            ps.setString(1, sqlPlayer.getPlayer_uuid().toString());
             ps.setShort(2, sqlPlayer.getKills());
             ps.setShort(3, sqlPlayer.getDeaths());
             ps.setInt(4, sqlPlayer.getCoins());
-            ps.setByte(5, sqlPlayer.getStrengthModifier());
+            ps.setByte(5, sqlPlayer.getStrength_modifier());
             ps.setTimestamp(6, new Timestamp(sqlPlayer.getFirst_join_time().getTime()));
             ps.setTimestamp(7, new Timestamp(sqlPlayer.getLast_join_time().getTime()));
-            ps.setString(8, sqlPlayer.getTeam());
+            ps.setString(8, sqlPlayer.getTeam_name());
             ps.executeUpdate();
         } catch (SQLException e) {
             Bukkit.getLogger().severe("insertPlayer failed.");
