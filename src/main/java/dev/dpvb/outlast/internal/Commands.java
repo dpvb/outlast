@@ -70,13 +70,7 @@ class Commands {
     public void spawn(CommandSender sender) {
         //TODO fix this implementation of teleportation
         final Player player = (Player) sender;
-        final SQLLocation spawn = SQLService.getInstance().getLocationCache().getModel("spawn");
-        if (spawn == null) {
-            player.sendPlainMessage("No spawn location set.");
-            return;
-        }
-        player.teleport(spawn.getLocation());
-        player.sendPlainMessage("Teleported to spawn.");
+        TeleportService.getInstance().teleportSpawn(player);
     }
 
     @CommandMethod(value = "report <player>", requiredSender = Player.class)

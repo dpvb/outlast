@@ -1,5 +1,6 @@
 package dev.dpvb.outlast.teleportation;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -101,6 +102,20 @@ public abstract class ChannelingTeleport {
         @Override
         boolean execute() {
             if (!destination.isOnline()) return false;
+            return teleporting.teleport(destination);
+        }
+    }
+
+    static class LocationChannel extends ChannelingTeleport {
+        private final Location destination;
+
+        LocationChannel(@NotNull Player teleporting, @NotNull Location destination) {
+            super(teleporting);
+            this.destination = destination;
+        }
+
+        @Override
+        boolean execute() {
             return teleporting.teleport(destination);
         }
     }

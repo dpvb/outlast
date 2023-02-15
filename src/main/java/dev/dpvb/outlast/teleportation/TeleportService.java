@@ -1,5 +1,7 @@
 package dev.dpvb.outlast.teleportation;
 
+import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.models.SQLLocation;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +41,27 @@ public class TeleportService {
         final TeleportRequest request = new TeleportRequest(player, target);
         getRequests(target).add(request);
         return request;
+    }
+
+    /**
+     * Teleports a player to spawn.
+     *
+     * This method returns null if the spawn is not set.
+     *
+     * @param player the player to teleport
+     * @return a channeling teleport or null
+     */
+    public @Nullable ChannelingTeleport teleportSpawn(@NotNull Player player) {
+        if (teleportRunner == null) throw new IllegalStateException("Teleport runner not initialized");
+        final SQLLocation spawn = SQLService.getInstance().getLocationCache().getModel("spawn");
+        if (spawn == null) {
+            player.sendMessage("An error occurred. No spawn location is set right now.");
+            throw new IllegalStateException("No spawn location set.");
+        }
+
+        ChannelingTeleport.LocationChannel channel = new ChannelingTeleport.LocationChannel(player, spawn.getLocation());
+        teleportRunner.add(channel);
+        return channel;
     }
 
     /**
