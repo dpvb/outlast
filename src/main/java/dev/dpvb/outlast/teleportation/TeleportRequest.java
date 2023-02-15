@@ -99,4 +99,20 @@ public class TeleportRequest {
         state = State.ACCEPTED;
         return Optional.of(new ChannelingTeleport.PlayerChannel(sender, target));
     }
+
+    /**
+     * Denies the request.
+     * <p>
+     * This method will only return true if the request has not already been
+     * accepted, denied or has expired.
+     *
+     * @return true if the request was denied successfully
+     */
+    public boolean deny() {
+        if (state != State.SENT) {
+            return false;
+        }
+        state = State.DENIED;
+        return true;
+    }
 }

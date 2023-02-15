@@ -40,6 +40,17 @@ class TeleportRequestProcessor extends BukkitRunnable {
                         request.state = TeleportRequest.State.EXPIRED;
                     }
                 }
+                // notify accepts+denies
+                for (TeleportRequest request : requests) {
+                    switch (request.state) {
+                        // FIXME localize message
+                        case ACCEPTED -> player.sendMessage("Your teleport request to " + request.getTarget().getName() + " was accepted.");
+                        // FIXME localize message
+                        case DENIED -> player.sendMessage("Your teleport request to " + request.getTarget().getName() + " was denied.");
+                    }
+                }
+                // remove accepts+denies
+                requests.removeIf(request -> request.state == TeleportRequest.State.DENIED || request.state == TeleportRequest.State.ACCEPTED);
             });
         }
     }
