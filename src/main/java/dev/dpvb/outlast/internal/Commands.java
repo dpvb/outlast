@@ -68,7 +68,6 @@ class Commands {
     @CommandMethod(value = "spawn", requiredSender = Player.class)
     @CommandDescription("Teleports you to the spawn point")
     public void spawn(CommandSender sender) {
-        //TODO fix this implementation of teleportation
         final Player player = (Player) sender;
         TeleportService.getInstance().teleportSpawn(player);
     }
