@@ -74,6 +74,7 @@ public abstract class ChannelingTeleport {
     public boolean cancel() {
         if (state == State.WAITING) {
             state = State.CANCELLED;
+            teleporting.sendMessage("Teleportation cancelled.");
             return true;
         }
         return false;
