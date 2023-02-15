@@ -14,21 +14,21 @@ import java.util.Queue;
  */
 public class TeleportService {
     private static final TeleportService INSTANCE = new TeleportService();
-    private final long channelTicks = 20L * 5;
     private final Map<Player, Queue<TeleportRequest>> requestMap = new HashMap<>();
+    private TeleportRunner teleportRunner;
 
     /**
      * Teleports a player to the player's team's home.
      * <p>
      * This method returns null if the player is not in a team or if the
-     * player's team does not have a home set.
+     * player's team does not currently have a home set.
      *
      * @param player the player to teleport
      * @return a channeling teleport or null
      */
     public @Nullable ChannelingTeleport teleportHome(@NotNull Player player) {
-        // TODO
-        return null;
+        if (teleportRunner == null) throw new IllegalStateException("Teleport runner not initialized");
+        return new ChannelingTeleport.TeamHomeChannel(player);
     }
 
     /**
@@ -53,6 +53,13 @@ public class TeleportService {
     public @NotNull Queue<TeleportRequest> getPendingRequests(@NotNull Player player) {
         requestMap.putIfAbsent(player, new LinkedList<>());
         return requestMap.get(player);
+    }
+
+    public void setupRunner() {
+        if (teleportRunner != null && !teleportRunner.isCancelled()) {
+            teleportRunner.cancel();
+        }
+        teleportRunner = new TeleportRunner();
     }
 
     public static TeleportService getInstance() {

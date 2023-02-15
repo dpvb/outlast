@@ -2,6 +2,7 @@ package dev.dpvb.outlast.internal;
 
 import dev.dpvb.outlast.events.FirstTimeJoin;
 import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +21,8 @@ public class OutlastPlugin extends JavaPlugin {
         setupCommands();
         // Setup Listeners
         setupListeners();
+        // Setup Teleport Runner
+        TeleportService.getInstance().setupRunner();
     }
 
     @Override

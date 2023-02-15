@@ -51,8 +51,9 @@ class Commands {
             player.sendPlainMessage("You have no pending teleport requests.");
             return;
         }
+        // FIXME set up a task to clean up expired requests so users don't have to experience a weird no-op on a valid command invocation
         if (teleportRequest.getState() == TeleportRequest.State.SENT) {
-            if (teleportRequest.accept()) {
+            if (teleportRequest.accept().isPresent()) {
                 player.sendPlainMessage("Teleport request accepted.");
                 return;
             }

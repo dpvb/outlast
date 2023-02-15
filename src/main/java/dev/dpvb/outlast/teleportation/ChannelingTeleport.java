@@ -1,17 +1,16 @@
 package dev.dpvb.outlast.teleportation;
 
-import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 /**
  * A teleport in progress.
  */
-public class ChannelingTeleport {
+public abstract class ChannelingTeleport {
     /**
      * Represents the state of a teleport.
      */
+    @SuppressWarnings("UnnecessarySemicolon")
     public enum State {
         /**
          * The target is waiting to teleport.
@@ -28,11 +27,12 @@ public class ChannelingTeleport {
         ;
     }
 
-    private final Supplier<Location> locationSupplier;
-    private @NotNull State state = State.WAITING;
+    protected final Player teleporting;
+    @NotNull State state = State.WAITING;
+    long ticksWaited;
 
-    public ChannelingTeleport(@NotNull Supplier<Location> locationSupplier) {
-        this.locationSupplier = locationSupplier;
+    ChannelingTeleport(@NotNull Player teleporting) {
+        this.teleporting = teleporting;
     }
 
     /**
@@ -45,13 +45,25 @@ public class ChannelingTeleport {
     }
 
     /**
-     * Gets the location function of the teleport destination.
+     * Gets the player who will be teleporting.
      *
-     * @return the teleport destination as a location function
+     * @return the player who will be teleporting
      */
-    public @NotNull Supplier<Location> getDestination() {
-        return locationSupplier;
+    public @NotNull Player getTeleporting() {
+        return teleporting;
     }
+
+    /**
+     * Executes the teleport.
+     * <p>
+     * This method should return true on successful teleport, only returning
+     * false if the teleport cannot be completed due to a change in game state;
+     * for instance, if the destination player is no longer online or the
+     * target's team's home is no longer set.
+     *
+     * @return true unless an error occurred
+     */
+    abstract boolean execute();
 
     /**
      * Cancels the teleport.
@@ -59,7 +71,37 @@ public class ChannelingTeleport {
      * @return true unless the teleport has already been cancelled or succeeded
      */
     public boolean cancel() {
-        // TODO
+        if (state == State.WAITING) {
+            state = State.CANCELLED;
+            return true;
+        }
         return false;
+    }
+
+    static class TeamHomeChannel extends ChannelingTeleport {
+        TeamHomeChannel(@NotNull Player teleporting) {
+            super(teleporting);
+        }
+
+        @Override
+        boolean execute() {
+            // TODO get player's team's home
+            return false;
+        }
+    }
+
+    static class PlayerChannel extends ChannelingTeleport {
+        private final Player destination;
+
+        PlayerChannel(@NotNull Player teleporting, @NotNull Player destination) {
+            super(teleporting);
+            this.destination = destination;
+        }
+
+        @Override
+        boolean execute() {
+            if (!destination.isOnline()) return false;
+            return teleporting.teleport(destination);
+        }
     }
 }
