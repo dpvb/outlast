@@ -21,8 +21,9 @@ public class OutlastPlugin extends JavaPlugin {
         setupCommands();
         // Setup Listeners
         setupListeners();
-        // Setup Teleport Runner
+        // Setup Teleport Runner and Request Processor
         TeleportService.getInstance().setupRunner();
+        TeleportService.getInstance().setupRequestProcessor();
     }
 
     @Override

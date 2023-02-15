@@ -40,7 +40,7 @@ public class TeleportRequest {
     private final Instant instant = Instant.now();
     private final Player sender;
     private final Player target;
-    private @NotNull State state = State.SENT;
+    @NotNull State state = State.SENT;
 
     public TeleportRequest(@NotNull Player sender, @NotNull Player target) {
         this.sender = sender;
