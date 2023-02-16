@@ -113,6 +113,7 @@ class Commands {
     @CommandMethod(value = "team join <name>", requiredSender = Player.class)
     @CommandDescription("Joins a team with the given name")
     public void joinTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
+        //test
     }
 
     @CommandMethod(value = "team info [name]", requiredSender = Player.class)
