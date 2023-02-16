@@ -156,6 +156,9 @@ class Commands {
         player.sendPlainMessage("Team " + name + ":");
         player.sendPlainMessage(teamLeader.getName() + " (Leader)");
         for (OfflinePlayer offlinePlayer : otherMembers) {
+            if (offlinePlayer.equals(teamLeader)) {
+                continue;
+            }
             player.sendPlainMessage(offlinePlayer.getName() + "");
         }
     }
