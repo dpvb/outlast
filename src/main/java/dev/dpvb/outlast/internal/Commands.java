@@ -115,9 +115,15 @@ class Commands {
         }
     }
 
+    @CommandMethod(value = "team invite <player>", requiredSender = Player.class)
+    @CommandDescription("Invite a Player to the Team")
+    public void invitePlayer(CommandSender sender, @NotNull @Argument("player") Player target) {
+
+    }
+
     @CommandMethod(value = "team join <name>", requiredSender = Player.class)
     @CommandDescription("Joins a team with the given name")
-    public void joinTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
+    public void joinTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String invitee) {
 
     }
 
