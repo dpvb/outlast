@@ -3,6 +3,7 @@ package dev.dpvb.outlast.sql.cache;
 import dev.dpvb.outlast.sql.controllers.Controller;
 import org.bukkit.Bukkit;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,10 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
 
     public V getModel(K key) {
         return modelMap.get(key);
+    }
+
+    public Collection<V> getModels() {
+        return modelMap.values();
     }
 
     public void updateModel(K key, Consumer<V> consumer) {

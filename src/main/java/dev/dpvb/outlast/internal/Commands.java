@@ -8,7 +8,10 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.LocationCache;
+import dev.dpvb.outlast.sql.cache.PlayerCache;
+import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
+import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.command.CommandSender;
@@ -80,6 +83,31 @@ class Commands {
     @CommandMethod(value = "team create <name>", requiredSender = Player.class)
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
+        // TODO do we need a regex check? not sure how it works.
+        final Player player = (Player) sender;
+        final PlayerCache playerCache = SQLService.getInstance().getPlayerCache();
+        // check if this player is already in a team
+        if (playerCache.getModel(player.getUniqueId()).getTeam_name() != null) {
+            player.sendPlainMessage("You are already on a team.");
+            return;
+        }
+        final TeamCache teamCache = SQLService.getInstance().getTeamCache();
+        // check if team with this name already exists
+        SQLTeam checkTeam = teamCache.getModel(name);
+        if (checkTeam != null) {
+            player.sendPlainMessage("A team with this name already exists.");
+            return;
+        }
+        // create the team
+        teamCache.createModel(name, (sqlTeam) -> {
+            sqlTeam.setLeader(player.getUniqueId());
+        });
+        // add the player to the team
+        playerCache.updateModel(player.getUniqueId(), sqlPlayer -> {
+            sqlPlayer.setTeam_name(name);
+        });
+        // send player a message
+        player.sendPlainMessage("Created Team " + name + ".");
     }
 
     @CommandMethod(value = "team join <name>", requiredSender = Player.class)

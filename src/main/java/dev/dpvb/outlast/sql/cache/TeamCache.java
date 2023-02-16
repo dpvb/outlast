@@ -3,6 +3,8 @@ package dev.dpvb.outlast.sql.cache;
 import dev.dpvb.outlast.sql.controllers.TeamController;
 import dev.dpvb.outlast.sql.models.SQLTeam;
 
+import java.util.UUID;
+
 public class TeamCache extends Cache<TeamController, String, SQLTeam> {
     public TeamCache(TeamController controller) {
         super(controller);
