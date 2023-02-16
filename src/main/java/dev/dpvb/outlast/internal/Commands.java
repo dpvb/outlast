@@ -13,6 +13,7 @@ import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.Bukkit;
@@ -99,27 +100,19 @@ class Commands {
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
         final Player player = (Player) sender;
-        // check if this player is already in a team
-        if (playerCache.getModel(player.getUniqueId()).getTeam_name() != null) {
+        final TeamService teamService = TeamService.getInstance();
+        // check if they are in a team already
+        if (teamService.getTeam(player.getUniqueId()) != null) {
             player.sendPlainMessage("You are already on a team.");
             return;
         }
-        // check if team with this name already exists
-        SQLTeam checkTeam = teamCache.getModel(name);
-        if (checkTeam != null) {
+        // attempt to create the team
+        final boolean success = teamService.createTeam(name, player.getUniqueId());
+        if (!success) {
             player.sendPlainMessage("A team with this name already exists.");
-            return;
+        } else {
+            player.sendPlainMessage("Created Team " + name + ".");
         }
-        // create the team
-        teamCache.createModel(name, (sqlTeam) -> {
-            sqlTeam.setLeader(player.getUniqueId());
-        });
-        // add the player to the team
-        playerCache.updateModel(player.getUniqueId(), sqlPlayer -> {
-            sqlPlayer.setTeam_name(name);
-        });
-        // send player a message
-        player.sendPlainMessage("Created Team " + name + ".");
     }
 
     @CommandMethod(value = "team join <name>", requiredSender = Player.class)
@@ -171,40 +164,14 @@ class Commands {
     @CommandMethod(value = "team leave", requiredSender = Player.class)
     @CommandDescription("Leave your team")
     public void leaveTeam(CommandSender sender) {
-        // check if player is on a team
         final Player player = (Player) sender;
-        String teamName = playerCache.getModel(player.getUniqueId()).getTeam_name();
-        if (teamName == null) {
-            player.sendPlainMessage("You are not in a team!");
-            return;
-        }
-        // retrieve your teammates
-        List<UUID> teamMates = playerCache.getModels().stream()
-                .filter(sqlPlayer -> teamName.equals(sqlPlayer.getTeam_name()))
-                .map(SQLPlayer::getPlayer_uuid)
-                .filter(uuid -> !uuid.equals(player.getUniqueId()))
-                .toList();
-
-        // remove the player from the team
-        playerCache.updateModel(player.getUniqueId(), sqlPlayer -> {
-            sqlPlayer.setTeam_name(null);
-        });
-
-        // if you have 0 teammates, delete the team
-        if (teamMates.size() == 0) {
-            teamCache.deleteModel(teamName);
+        final TeamService teamService = TeamService.getInstance();
+        final boolean success = teamService.leaveTeam(player.getUniqueId());
+        if (!success) {
+            player.sendPlainMessage("You are not in a team.");
         } else {
-            // check if the team leader is the player who is leaving.
-            UUID teamLeader = teamCache.getModel(teamName).getLeader();
-            if (teamLeader.equals(player.getUniqueId())) {
-                // need to give team leader to someone else.
-                teamCache.updateModel(teamName, sqlTeam -> {
-                    sqlTeam.setLeader(teamMates.get(0));
-                });
-            }
+            player.sendPlainMessage("You left the team.");
         }
-
-        player.sendPlainMessage("You left the team.");
     }
 
     @CommandMethod(value = "team setleader <player>", requiredSender = Player.class)
