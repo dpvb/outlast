@@ -4,6 +4,7 @@ import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
+import dev.dpvb.outlast.sql.models.SQLTeam;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -130,11 +131,26 @@ public class TeamService {
      * @param teamName The name of the team.
      * @return List of UUIDs of Players on the Team. Empty if the Team does not exist.
      */
-    private @NotNull List<UUID> getTeamMembers(String teamName) {
+    public @NotNull List<UUID> getTeamMembers(String teamName) {
         return playerCache.getModels().stream()
                 .filter(sqlPlayer -> teamName.equals(sqlPlayer.getTeam_name()))
                 .map(SQLPlayer::getPlayer_uuid)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Check if the passed in UUID is a Leader of the Team supplied.
+     * @param uuid The player's to check
+     * @param teamName The name of the team.
+     * @return true if the player is a team leader false otherwise
+     */
+    public boolean isLeaderOfTeam(UUID uuid, String teamName) {
+        final SQLTeam team = teamCache.getModel(teamName);
+        if (team == null) {
+            // TODO or maybe throw here im not sure how we should handle this?
+            return false;
+        }
+        return team.getLeader().equals(uuid);
     }
 
     // call this after SQLService is initialized
