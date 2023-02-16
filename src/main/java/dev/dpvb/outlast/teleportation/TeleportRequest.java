@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * A request to teleport to another player.
@@ -39,7 +40,7 @@ public class TeleportRequest {
     private final Instant instant = Instant.now();
     private final Player sender;
     private final Player target;
-    private @NotNull State state = State.SENT;
+    @NotNull State state = State.SENT;
 
     public TeleportRequest(@NotNull Player sender, @NotNull Player target) {
         this.sender = sender;
@@ -84,11 +85,34 @@ public class TeleportRequest {
 
     /**
      * Accepts the request.
+     * <p>
+     * This method will return an empty optional if the request has already
+     * been accepted, denied or has expired; otherwise it will contain the
+     * resulting teleport channel.
      *
-     * @return true only if the request was changed from sent to accepted
+     * @return an optional describing the resultant teleport channel
      */
-    public boolean accept() {
-        // TODO
-        return false;
+    public @NotNull Optional<ChannelingTeleport> accept() {
+        if (state != State.SENT) {
+            return Optional.empty();
+        }
+        state = State.ACCEPTED;
+        return Optional.of(new ChannelingTeleport.PlayerChannel(sender, target));
+    }
+
+    /**
+     * Denies the request.
+     * <p>
+     * This method will only return true if the request has not already been
+     * accepted, denied or has expired.
+     *
+     * @return true if the request was denied successfully
+     */
+    public boolean deny() {
+        if (state != State.SENT) {
+            return false;
+        }
+        state = State.DENIED;
+        return true;
     }
 }

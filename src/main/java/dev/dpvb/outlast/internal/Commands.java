@@ -6,6 +6,9 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
+import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.cache.LocationCache;
+import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import org.bukkit.command.CommandSender;
@@ -43,13 +46,13 @@ class Commands {
     @CommandDescription("Accepts any teleport request sent to you")
     public void acceptTeleports(CommandSender sender) {
         final Player player = (Player) sender;
-        final var teleportRequest = TeleportService.getInstance().getPendingRequests(player).poll();
+        final var teleportRequest = TeleportService.getInstance().getRequests(player).poll();
         if (teleportRequest == null) {
             player.sendPlainMessage("You have no pending teleport requests.");
             return;
         }
         if (teleportRequest.getState() == TeleportRequest.State.SENT) {
-            if (teleportRequest.accept()) {
+            if (teleportRequest.accept().isPresent()) {
                 player.sendPlainMessage("Teleport request accepted.");
                 return;
             }
@@ -65,6 +68,8 @@ class Commands {
     @CommandMethod(value = "spawn", requiredSender = Player.class)
     @CommandDescription("Teleports you to the spawn point")
     public void spawn(CommandSender sender) {
+        final Player player = (Player) sender;
+        TeleportService.getInstance().teleportSpawn(player);
     }
 
     @CommandMethod(value = "report <player>", requiredSender = Player.class)
@@ -143,6 +148,19 @@ class Commands {
     @CommandDescription("Sets the spawn location to your current location")
     @CommandPermission("outlast.admin")
     public void setSpawn(CommandSender sender) {
+        final Player player = (Player) sender;
+        final LocationCache locationCache = SQLService.getInstance().getLocationCache();
+        final SQLLocation spawn = locationCache.getModel("spawn");
+        if (spawn == null) {
+            locationCache.createModel("spawn", loc -> {
+                loc.setLocation(player.getLocation());
+            });
+        } else {
+            locationCache.updateModel("spawn", loc -> {
+                loc.setLocation(player.getLocation());
+            });
+        }
+        player.sendPlainMessage("Spawn point set.");
     }
 
     @CommandMethod(value = "vanish", requiredSender = Player.class)
