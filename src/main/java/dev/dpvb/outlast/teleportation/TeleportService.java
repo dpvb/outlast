@@ -44,9 +44,9 @@ public class TeleportService {
     }
 
     /**
-     * Teleports a player to spawn.
-     *
-     * This method returns null if the spawn is not set.
+     * Teleports a player to (game) spawn.
+     * <p>
+     * This method returns null if the location {@code spawn} is not set.
      *
      * @param player the player to teleport
      * @return a channeling teleport or null
@@ -55,8 +55,7 @@ public class TeleportService {
         if (teleportRunner == null) throw new IllegalStateException("Teleport runner not initialized");
         final SQLLocation spawn = SQLService.getInstance().getLocationCache().getModel("spawn");
         if (spawn == null) {
-            player.sendMessage("An error occurred. No spawn location is set right now.");
-            throw new IllegalStateException("No spawn location set.");
+            return null; // follows contract
         }
 
         ChannelingTeleport.LocationChannel channel = new ChannelingTeleport.LocationChannel(player, spawn.getLocation());

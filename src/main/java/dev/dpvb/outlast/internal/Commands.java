@@ -86,7 +86,9 @@ class Commands {
     @CommandDescription("Teleports you to the spawn point")
     public void spawn(CommandSender sender) {
         final Player player = (Player) sender;
-        TeleportService.getInstance().teleportSpawn(player);
+        if (TeleportService.getInstance().teleportSpawn(player) == null) {
+            player.sendMessage("An error occurred. No spawn location is set right now.");
+        }
     }
 
     @CommandMethod(value = "report <player>", requiredSender = Player.class)
@@ -97,7 +99,6 @@ class Commands {
     @CommandMethod(value = "team create <name>", requiredSender = Player.class)
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
-        // TODO do we need a regex check? not sure how it works.
         final Player player = (Player) sender;
         // check if this player is already in a team
         if (playerCache.getModel(player.getUniqueId()).getTeam_name() != null) {
