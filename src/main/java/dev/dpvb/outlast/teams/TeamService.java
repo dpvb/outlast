@@ -5,6 +5,8 @@ import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class TeamService {
     private static final TeamService INSTANCE = new TeamService();
+    private static final int TEAM_LIMIT = 3;
     private PlayerCache playerCache;
     private TeamCache teamCache;
     private TeamRequestProcessor requestProcessor;
@@ -76,21 +79,41 @@ public class TeamService {
     }
 
     /**
-     * Adds a player to a team, removing them as needed.
+     * Adds a player to a team.
      * <p>
-     * If removing the player from their current team (if present) would cause
-     * team destruction this method should throw an exception. If
-     * {@code teamName} does not exist, this method should return false.
+     * If {@code teamName} does not exist or the team is full, this method should return false.
      *
-     * @param teamName the name of the team to join
      * @param player the player to add
-     * @return true if the team exists and the player was added
+     * @return true if the team exists, there was space, and the player was added
      */
     public boolean joinTeam(@NotNull String teamName, @NotNull UUID player) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         if (playerCache == null) throw new IllegalStateException("playerCache not initialized");
-        // TODO finish this later (need to implement request subsystem)
-        throw new UnsupportedOperationException();
+
+        // check if team exists
+        final SQLTeam team = getTeamModel(teamName);
+        if (team == null) {
+            return false;
+        }
+
+        // check if team is full
+        if (isTeamFull(teamName)) {
+            return false;
+        }
+
+        // add player to team in db
+        playerCache.updateModel(player, sqlPlayer -> {
+            sqlPlayer.setTeam_name(teamName);
+        });
+        return true;
+    }
+
+
+    public TeamRequest invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
+        // create request
+        final TeamRequest request = new TeamRequest(sender, teamName, target);
+        requestProcessor.putRequest(target, request);
+        return request;
     }
 
     /**
@@ -175,6 +198,14 @@ public class TeamService {
             return false;
         }
         return team.getLeader().equals(player);
+    }
+
+    public @Nullable TeamRequest getTeamRequest(@NotNull Player player) {
+        return requestProcessor.getRequests(player);
+    }
+
+    public boolean isTeamFull(@NotNull String teamName) {
+        return getTeamMembers(teamName).size() == TEAM_LIMIT;
     }
 
     // call this after SQLService is initialized

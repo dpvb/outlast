@@ -13,6 +13,7 @@ import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import dev.dpvb.outlast.teams.TeamRequest;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
@@ -119,13 +120,81 @@ class Commands {
     @CommandMethod(value = "team invite <player>", requiredSender = Player.class)
     @CommandDescription("Invite a Player to the Team")
     public void invitePlayer(CommandSender sender, @NotNull @Argument("player") Player target) {
+        final Player player = (Player) sender;
+        final TeamService teamService = TeamService.getInstance();
+        // check if they are attempting to invite themselves.
+        if (player.equals(target)) {
+            player.sendPlainMessage("You can't invite yourself.");
+            return;
+        }
 
+        // check if they are not on a team.
+        String team = teamService.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendPlainMessage("You must be on a team to perform this command.");
+            return;
+        }
+
+        // check if the sender is the leader.
+        if (!teamService.isLeaderOfTeam(player.getUniqueId(), team)) {
+            player.sendPlainMessage("You must be the team leader to do this.");
+            return;
+        }
+
+        // check if the player you want to invite is already on a team
+        if (teamService.getTeam(target.getUniqueId()) != null) {
+            player.sendPlainMessage("That player is already on a team.");
+            return;
+        }
+
+        // check if team is full
+        if (teamService.isTeamFull(team)) {
+            player.sendPlainMessage("The team is full, so you can not add anymore players.");
+            return;
+        }
+
+        // invite player
+        final TeamRequest teamRequest = teamService.invitePlayer(player, team, target);
+        player.sendPlainMessage("Request will timeout in " + TeamRequest.TIMEOUT + " seconds.");
+        target.sendPlainMessage(player.getName() + " sent you an invite to join Team " + team);
     }
 
-    @CommandMethod(value = "team join <name>", requiredSender = Player.class)
-    @CommandDescription("Joins a team with the given name")
-    public void joinTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String invitee) {
+    @CommandMethod(value = "team join", requiredSender = Player.class)
+    @CommandDescription("Accept any pending requests to join a Team.")
+    public void joinTeam(CommandSender sender) {
+        final Player player = (Player) sender;
+        final TeamService teamService = TeamService.getInstance();
+        // if player is in a team, do not join new one.
+        if (teamService.getTeam(player.getUniqueId()) != null) {
+            player.sendPlainMessage("You are already in a team.");
+            return;
+        }
 
+        // check for pending requests and join if possible
+        final TeamRequest teamRequest = teamService.getTeamRequest(player);
+        if (teamRequest == null) {
+            player.sendPlainMessage("You do not have any pending team requests.");
+            return;
+        }
+
+        // attempt to accept and join
+        if (teamRequest.getState() == TeamRequest.State.SENT) {
+            teamRequest.accept();
+            boolean joined = teamService.joinTeam(teamRequest.getTeamName(), player.getUniqueId());
+            if (!joined) {
+                player.sendPlainMessage("Could not join team for some reason.");
+            } else {
+                player.sendPlainMessage("Joined team!");
+            }
+            return;
+        }
+
+        player.sendPlainMessage("The team request " + switch (teamRequest.getState()) {
+            case SENT -> new IllegalStateException();
+            case ACCEPTED -> "was already accepted.";
+            case DENIED -> "was denied.";
+            case EXPIRED -> "expired.";
+        });
     }
 
     @CommandMethod(value = "team info [name]", requiredSender = Player.class)

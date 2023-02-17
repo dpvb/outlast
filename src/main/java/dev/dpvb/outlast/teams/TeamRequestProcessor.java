@@ -24,6 +24,12 @@ class TeamRequestProcessor extends BukkitRunnable {
         }
     }
 
+    @Nullable TeamRequest putRequest(Player player, TeamRequest request) {
+        synchronized (requestMap) {
+            return requestMap.put(player, request);
+        }
+    }
+
     @Override
     public void run() {
         synchronized (requestMap) {
