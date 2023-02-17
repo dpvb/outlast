@@ -96,6 +96,7 @@ class Commands {
     public void report(CommandSender sender, @NotNull @Argument("player") Player target) {
     }
 
+    // Team commands
     @CommandMethod(value = "team create <name>", requiredSender = Player.class)
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
@@ -205,6 +206,7 @@ class Commands {
     @CommandDescription("Lists all team commands")
     public void teamHelp(CommandSender sender) {
     }
+    // team commands end
 
     @CommandMethod(value = "shop", requiredSender = Player.class)
     @CommandDescription("Opens the GUI shop")
