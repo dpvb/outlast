@@ -17,6 +17,7 @@ public class TeamService {
     private static final TeamService INSTANCE = new TeamService();
     private PlayerCache playerCache;
     private TeamCache teamCache;
+    private TeamRequestProcessor requestProcessor;
 
     private TeamService() {}
 
@@ -181,6 +182,11 @@ public class TeamService {
         // capture cache instances
         playerCache = SQLService.getInstance().getPlayerCache();
         teamCache = SQLService.getInstance().getTeamCache();
+        // set up request processor
+        if (requestProcessor != null && !requestProcessor.isCancelled()) {
+            requestProcessor.cancel();
+        }
+        requestProcessor = new TeamRequestProcessor();
     }
 
     public static TeamService getInstance() {
