@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,10 +27,14 @@ public class TeamService {
      * @return the team of the player or null if the player is not in a team
      */
     public @Nullable String getTeam(@NotNull UUID player) {
+        return getPlayerModel(player).getTeam_name();
+    }
+
+    private @NotNull SQLPlayer getPlayerModel(@NotNull UUID player) {
         if (playerCache == null) throw new IllegalStateException("playerCache not initialized");
-        final var model = playerCache.getModel(player);
-        if (model == null) return null;
-        return model.getTeam_name();
+        // prevent operation if player does not have a valid model
+        // (this ensures that player is a valid player uuid)
+        return Objects.requireNonNull(playerCache.getModel(player), "player does not have a valid model");
     }
 
     /**
@@ -42,20 +47,31 @@ public class TeamService {
      * @return true unless a team with name {@code teamName} already exists
      */
     public boolean createTeam(@NotNull String teamName, @NotNull UUID leader) {
-        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         // return false if a team already exists with this name
-        if (teamCache.getModel(teamName) != null) {
+        if (getTeamModel(teamName) != null) {
             return false;
+        }
+        // remove the leader from their current team if needed
+        final var leaderModel = getPlayerModel(leader);
+        if (leaderModel.getTeam_name() != null) {
+            if (!leaveTeam(leader)) {
+                throw new IllegalStateException("Unable to create team as unable to leave team");
+            }
         }
         // create the team
         teamCache.createModel(teamName, sqlTeam -> {
             sqlTeam.setLeader(leader);
         });
-        // add the leader to the team
+        // set the team leader for the leader
         playerCache.updateModel(leader, sqlPlayer -> {
             sqlPlayer.setTeam_name(teamName);
         });
         return true;
+    }
+
+    private @Nullable SQLTeam getTeamModel(@NotNull String teamName) {
+        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
+        return teamCache.getModel(teamName);
     }
 
     /**
@@ -90,30 +106,30 @@ public class TeamService {
      */
     public boolean leaveTeam(@NotNull UUID player) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
-        if (playerCache == null) throw new IllegalStateException("playerCache not initialized");
 
+        // get the player's team name
         final String teamName = getTeam(player);
         if (teamName == null) {
-            // The team does not exist
+            // they have no team
             return false;
         }
 
-        // get the members of the team.
+        // Get a copy of all members in the team
         final List<UUID> members = getTeamMembers(teamName);
+        // Remove the player from the list
         members.remove(player);
 
-        // remove player from the team
+        // unset the team of the player
         playerCache.updateModel(player, sqlPlayer -> {
             sqlPlayer.setTeam_name(null);
         });
 
-        // if you have 0 teammates, delete the team
+        // if the team without the player has 0 members left, delete the team
         if (members.size() == 0) {
             teamCache.deleteModel(teamName);
         } else {
-            // check if the team leader is the player who is leading
-            final UUID leader = teamCache.getModel(teamName).getLeader();
-            if (leader.equals(player)) {
+            // check if the player leaving is the current leader of the team
+            if (teamCache.getModel(teamName).getLeader().equals(player)) {
                 // give team leader to someone else
                 teamCache.updateModel(teamName, sqlTeam -> {
                     sqlTeam.setLeader(members.get(0));
@@ -125,13 +141,16 @@ public class TeamService {
     }
 
     /**
-     * Gets the Members of a Team.
+     * Gets the members of a team.
+     * <p>
+     * If the returned is empty it means {@code teamName} does not exist (as
+     * a team cannot exist without members).
      *
-     * If the List is empty, it means the Team does not exist (because no Team can exist without members)
-     * @param teamName The name of the team.
-     * @return List of UUIDs of Players on the Team. Empty if the Team does not exist.
+     * @param teamName the name of the team
+     * @return a list of team members. May be empty.
      */
-    public @NotNull List<UUID> getTeamMembers(String teamName) {
+    public @NotNull List<UUID> getTeamMembers(@NotNull String teamName) {
+        if (playerCache == null) throw new IllegalStateException("playerCache not initialized");
         return playerCache.getModels().stream()
                 .filter(sqlPlayer -> teamName.equals(sqlPlayer.getTeam_name()))
                 .map(SQLPlayer::getPlayer_uuid)
@@ -139,18 +158,22 @@ public class TeamService {
     }
 
     /**
-     * Check if the passed in UUID is a Leader of the Team supplied.
-     * @param uuid The player's to check
-     * @param teamName The name of the team.
-     * @return true if the player is a team leader false otherwise
+     * Checks if the provided player is in fact the leader of the named team.
+     * <p>
+     * This method returns true only if 1) {@code teamName} exists and 2) its
+     * leader is {@code player}.
+     *
+     * @param player the player's uuid
+     * @param teamName the name of the team to check
+     * @return true if {@code player} is the leader of team {@code teamName}
      */
-    public boolean isLeaderOfTeam(UUID uuid, String teamName) {
+    public boolean isLeaderOfTeam(@NotNull UUID player, @NotNull String teamName) {
+        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         final SQLTeam team = teamCache.getModel(teamName);
         if (team == null) {
-            // TODO or maybe throw here im not sure how we should handle this?
             return false;
         }
-        return team.getLeader().equals(uuid);
+        return team.getLeader().equals(player);
     }
 
     // call this after SQLService is initialized
