@@ -115,7 +115,7 @@ public class TeamService {
     public TeamInvite invitePlayer(@NotNull Player target, @NotNull String teamName) {
         // create invite
         final TeamInvite invite = new TeamInvite(target, teamName);
-        inviteProcessor.getInvites(target).add(invite);
+        inviteProcessor.setInvite(target, invite);
         return invite;
     }
 
@@ -199,8 +199,8 @@ public class TeamService {
         return team.getLeader().equals(player);
     }
 
-    public Queue<TeamInvite> getTeamInvites(@NotNull Player player) {
-        return inviteProcessor.getInvites(player);
+    public TeamInvite getInvite(@NotNull Player player) {
+        return inviteProcessor.getInvite(player);
     }
 
     public boolean isTeamFull(@NotNull String teamName) {
