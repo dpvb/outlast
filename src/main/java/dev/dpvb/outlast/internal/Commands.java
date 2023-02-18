@@ -20,6 +20,7 @@ import dev.dpvb.outlast.teleportation.TeleportService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -59,6 +60,10 @@ class Commands {
     @CommandDescription("Sends a teleport request to the named player")
     public void teleport(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
         final Player player = (Player) sender;
+        if (target.equals(player)) {
+            player.sendPlainMessage("You can't send a teleport request to yourself.");
+            return;
+        }
         final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
         player.sendPlainMessage("This request will expire in " + TeleportRequest.TIMEOUT + " seconds.");
         target.sendPlainMessage("You have received a teleport request from " + player.getName() + ".");
@@ -197,9 +202,7 @@ class Commands {
                 teamInvite.accept(); // move to accepted state after joining
                 player.sendPlainMessage("Joined team!");
             } catch (TeamError.DoesNotExist | TeamError.Full e) {
-                player.sendPlainMessage(e.getMessage()); // FIXME make this more specialized and elegant
-                                                         //  Full in particular I think will be encountered quite frequently
-                                                         //  so let's focus on that branch
+                player.sendPlainMessage(e.getMessage());
             } catch (TeamError.PlayerAlreadyTeamed ignored) {
                 player.sendPlainMessage("You are already in a team.");
             }
