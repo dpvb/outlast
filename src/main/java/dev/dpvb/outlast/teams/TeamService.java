@@ -179,7 +179,6 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
-    // FIXME do you want this to stay boolean? makes more sense to me
     /**
      * Checks if the provided player is in fact the leader of the named team.
      * <p>
