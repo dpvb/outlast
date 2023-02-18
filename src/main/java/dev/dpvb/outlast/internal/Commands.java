@@ -161,7 +161,7 @@ class Commands {
         final TeamService teamService = TeamService.getInstance();
 
         // check for pending requests and join if possible
-        final TeamInvite teamInvite = teamService.getTeamInvite(player);
+        final TeamInvite teamInvite = teamService.getTeamInvites(player).peek();
         if (teamInvite == null) {
             player.sendPlainMessage("You do not have any pending team requests.");
             return;

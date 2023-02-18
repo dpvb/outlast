@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -111,10 +112,11 @@ public class TeamService {
     }
 
 
+    // TODO update signature
     public TeamInvite invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
         // create invite
         final TeamInvite invite = new TeamInvite(sender, teamName);
-        inviteProcessor.putInvite(target, invite);
+        inviteProcessor.getInvites(target).add(invite);
         return invite;
     }
 
@@ -198,7 +200,7 @@ public class TeamService {
         return team.getLeader().equals(player);
     }
 
-    public @Nullable TeamInvite getTeamInvite(@NotNull Player player) {
+    public Queue<TeamInvite> getTeamInvites(@NotNull Player player) {
         return inviteProcessor.getInvites(player);
     }
 
