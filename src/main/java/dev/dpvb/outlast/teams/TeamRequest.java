@@ -39,13 +39,11 @@ public class TeamRequest {
     private final Instant instant = Instant.now();
     private final Player sender;
     private final String teamName;
-    private final Player target;
     @NotNull State state = State.SENT;
 
-    public TeamRequest(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
+    public TeamRequest(@NotNull Player sender, @NotNull String teamName) {
         this.sender = sender;
         this.teamName = teamName;
-        this.target = target;
     }
 
     /**

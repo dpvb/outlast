@@ -111,7 +111,7 @@ public class TeamService {
 
     public TeamRequest invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
         // create request
-        final TeamRequest request = new TeamRequest(sender, teamName, target);
+        final TeamRequest request = new TeamRequest(sender, teamName);
         requestProcessor.putRequest(target, request);
         return request;
     }
