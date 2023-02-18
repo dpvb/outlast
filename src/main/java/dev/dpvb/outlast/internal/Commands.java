@@ -142,7 +142,7 @@ class Commands {
 
     @CommandMethod(value = "team invite <player>", requiredSender = Player.class)
     @CommandDescription("Invite a Player to the Team")
-    public void invitePlayer(CommandSender sender, @NotNull @Argument("player") Player target) {
+    public void invitePlayer(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
         final Player player = (Player) sender;
         final TeamService teamService = TeamService.getInstance();
         // check if they are attempting to invite themselves.
@@ -345,8 +345,13 @@ class Commands {
     @CommandMethod(value = "tpo <player>", requiredSender = Player.class)
     @CommandDescription("Teleports to the named player silently (without requesting)")
     @CommandPermission("outlast.admin")
-    public void teleportOverride(CommandSender sender, @NotNull @Argument("player") Player target) {
-        ((Player) sender).teleport(target);
+    public void teleportOverride(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
+        final Player player = (Player) sender;
+        if (target.equals(player)) {
+            player.sendPlainMessage("You can't teleport to yourself.");
+            return;
+        }
+        player.teleport(target);
     }
 
     @CommandMethod(value = "test", requiredSender = Player.class)
