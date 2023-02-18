@@ -34,6 +34,8 @@ class TeleportRequestProcessor extends BukkitRunnable {
             // update each player's request queue
             requestMap.forEach((player, requests) -> {
                 // update expired requests
+                // FIXME should we notify the sending player that their request expired?
+                //  if so I will just add it to the accepts+denies code below
                 for (TeleportRequest request : requests) {
                     if (request.state != TeleportRequest.State.SENT) continue;
                     if (request.getTimeSince() >= TeleportRequest.TIMEOUT) {

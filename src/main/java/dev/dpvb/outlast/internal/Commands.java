@@ -17,6 +17,9 @@ import dev.dpvb.outlast.teams.TeamInvite;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -51,12 +54,31 @@ class Commands {
     }
 
     // Player commands
+    // TP commands
     @CommandMethod(value = "tp <player>", requiredSender = Player.class)
     @CommandDescription("Sends a teleport request to the named player")
-    public void teleport(CommandSender sender, @NotNull @Argument("player") Player target) {
+    public void teleport(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
         final Player player = (Player) sender;
         final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
         player.sendPlainMessage("This request will expire in " + TeleportRequest.TIMEOUT + " seconds.");
+        target.sendPlainMessage("You have received a teleport request from " + player.getName() + ".");
+        target.sendMessage(
+                Component.text("Accept with ").append(
+                        Component.text("/tpaccept")
+                                .color(NamedTextColor.AQUA)
+                                .hoverEvent(Component.text("Accept teleport request"))
+                                .clickEvent(ClickEvent.suggestCommand("/tpaccept"))
+                ).append(Component.text(". The request will expire in " + TeleportRequest.TIMEOUT + " seconds."))
+        ); // TODO tpdeny?
+    }
+
+    @Suggestions("players-except-self")
+    public List<String> playersExceptSelf(CommandContext<CommandSender> sender, String input) {
+        final String playerName = sender.getSender().getName();
+        return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName)
+                .filter(name -> !name.equals(playerName))
+                .toList();
     }
 
     @CommandMethod(value = "tpaccept", requiredSender = Player.class)
@@ -90,6 +112,7 @@ class Commands {
             player.sendMessage("An error occurred. No spawn location is set right now.");
         }
     }
+    // end TP commands
 
     @CommandMethod(value = "report <player>", requiredSender = Player.class)
     @CommandDescription("Reports the named player")
