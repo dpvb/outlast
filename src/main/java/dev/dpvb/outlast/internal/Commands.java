@@ -93,13 +93,16 @@ class Commands {
     public void acceptTeleports(CommandSender sender) {
         final Player player = (Player) sender;
         final var teleportRequest = TeleportService.getInstance().getRequest(player);
+        // Check for Teleport Request!
         if (teleportRequest == null) {
             player.sendPlainMessage("You have no pending teleport requests.");
             return;
         }
 
+        // Attempt to Accept Teleport Request
         if (teleportRequest.accept()) {
             teleportRequest.getSender().sendPlainMessage("Your teleport request was accepted.");
+            player.sendPlainMessage("You accepted " + teleportRequest.getSender().getName() + "'s teleport request!");
             TeleportService.getInstance().teleportPlayer(teleportRequest.getSender(), player);
             return;
         }
