@@ -182,7 +182,6 @@ class Commands {
                 player.sendPlainMessage(e.getMessage()); // FIXME make this more specialized and elegant
                                                          //  Full in particular I think will be encountered quite frequently
                                                          //  so let's focus on that branch
-                throw new RuntimeException(e);
             } catch (TeamError.PlayerAlreadyTeamed e) {
                 throw new RuntimeException(e); // safe, we checked for this above
             }
