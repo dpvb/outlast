@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.internal;
 
 import dev.dpvb.outlast.events.FirstTimeJoin;
+import dev.dpvb.outlast.events.JoinQuitMessages;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportService;
@@ -70,6 +71,7 @@ public class OutlastPlugin extends JavaPlugin {
 
     private void setupListeners() {
         Bukkit.getPluginManager().registerEvents(new FirstTimeJoin(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinQuitMessages(), this);
     }
 
     public static class Configuration {
