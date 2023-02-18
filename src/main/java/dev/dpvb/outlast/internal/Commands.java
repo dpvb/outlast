@@ -159,11 +159,6 @@ class Commands {
     public void joinTeam(CommandSender sender) {
         final Player player = (Player) sender;
         final TeamService teamService = TeamService.getInstance();
-        // if player is in a team, do not join new one.
-        if (teamService.getTeam(player.getUniqueId()) != null) {
-            player.sendPlainMessage("You are already in a team.");
-            return;
-        }
 
         // check for pending requests and join if possible
         final TeamRequest teamRequest = teamService.getTeamRequest(player);
@@ -174,16 +169,16 @@ class Commands {
 
         // attempt to accept and join
         if (teamRequest.getState() == TeamRequest.State.SENT) {
-            teamRequest.accept();
             try {
                 teamService.joinTeam(teamRequest.getTeamName(), player.getUniqueId());
+                teamRequest.accept(); // move to accepted state after joining
                 player.sendPlainMessage("Joined team!");
             } catch (TeamError.DoesNotExist | TeamError.Full e) {
                 player.sendPlainMessage(e.getMessage()); // FIXME make this more specialized and elegant
                                                          //  Full in particular I think will be encountered quite frequently
                                                          //  so let's focus on that branch
-            } catch (TeamError.PlayerAlreadyTeamed e) {
-                throw new RuntimeException(e); // safe, we checked for this above
+            } catch (TeamError.PlayerAlreadyTeamed ignored) {
+                player.sendPlainMessage("You are already in a team.");
             }
             return;
         }
