@@ -3,6 +3,7 @@ package dev.dpvb.outlast.teleportation;
 import dev.dpvb.outlast.internal.OutlastPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,18 +12,24 @@ import java.util.Queue;
 
 // runs every second and marks expired requests
 class TeleportRequestProcessor extends BukkitRunnable {
-    private final Map<Player, LinkedList<TeleportRequest>> requestMap = new HashMap<>();
+    private final Map<Player, TeleportRequest> requestMap = new HashMap<>();
 
     TeleportRequestProcessor() {
         runTaskTimer(OutlastPlugin.getPlugin(OutlastPlugin.class), 0, 20);
     }
 
-    Queue<TeleportRequest> getRequests(Player player) {
+    @Nullable TeleportRequest getRequest(Player player) {
         synchronized (requestMap) {
-            return requestMap.compute(player, (p, requests) -> {
-                if (requests == null) return new LinkedList<>();
-                return requests;
-            });
+            return requestMap.get(player);
+        }
+    }
+
+    @Nullable TeleportRequest setRequest(Player player, TeleportRequest request) {
+        synchronized (requestMap) {
+            // clear out requests the sender has made previously.
+            requestMap.values().removeIf(tpRequest -> tpRequest.getSender().equals(request.getSender()));
+            // add request
+            return requestMap.put(player, request);
         }
     }
 
@@ -32,28 +39,16 @@ class TeleportRequestProcessor extends BukkitRunnable {
             // remove requests of players that are now offline
             requestMap.keySet().removeIf(player -> !player.isOnline());
             // update each player's request queue
-            requestMap.forEach((player, requests) -> {
+            requestMap.forEach((player, request) -> {
                 // update expired requests
-                // FIXME should we notify the sending player that their request expired?
-                //  if so I will just add it to the accepts+denies code below
-                for (TeleportRequest request : requests) {
-                    if (request.state != TeleportRequest.State.SENT) continue;
-                    if (request.getTimeSince() >= TeleportRequest.TIMEOUT) {
-                        request.state = TeleportRequest.State.EXPIRED;
-                    }
+                if (request.state != TeleportRequest.State.SENT) return;
+                if (request.getTimeSince() >= TeleportRequest.TIMEOUT) {
+                    request.state = TeleportRequest.State.EXPIRED;
+                    request.getSender().sendPlainMessage("Your teleport request to " + player.getName() + " has expired.");
                 }
-                // notify accepts+denies
-                for (TeleportRequest request : requests) {
-                    switch (request.state) {
-                        // FIXME localize message
-                        case ACCEPTED -> player.sendMessage("Your teleport request to " + request.getTarget().getName() + " was accepted.");
-                        // FIXME localize message
-                        case DENIED -> player.sendMessage("Your teleport request to " + request.getTarget().getName() + " was denied.");
-                    }
-                }
-                // remove accepts+denies
-                requests.removeIf(request -> request.state == TeleportRequest.State.DENIED || request.state == TeleportRequest.State.ACCEPTED);
             });
+            // remove non sents
+            requestMap.values().removeIf(invite -> invite.state != TeleportRequest.State.SENT);
         }
     }
 }

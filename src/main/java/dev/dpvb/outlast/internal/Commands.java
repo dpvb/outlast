@@ -15,6 +15,7 @@ import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teams.TeamError;
 import dev.dpvb.outlast.teams.TeamInvite;
 import dev.dpvb.outlast.teams.TeamService;
+import dev.dpvb.outlast.teleportation.ChannelingTeleport;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
 import net.kyori.adventure.text.Component;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 class Commands {
 
@@ -90,17 +92,18 @@ class Commands {
     @CommandDescription("Accepts any teleport request sent to you")
     public void acceptTeleports(CommandSender sender) {
         final Player player = (Player) sender;
-        final var teleportRequest = TeleportService.getInstance().getRequests(player).poll();
+        final var teleportRequest = TeleportService.getInstance().getRequest(player);
         if (teleportRequest == null) {
             player.sendPlainMessage("You have no pending teleport requests.");
             return;
         }
-        if (teleportRequest.getState() == TeleportRequest.State.SENT) {
-            if (teleportRequest.accept().isPresent()) {
-                player.sendPlainMessage("Teleport request accepted.");
-                return;
-            }
+
+        if (teleportRequest.accept()) {
+            teleportRequest.getSender().sendPlainMessage("Your teleport request was accepted.");
+            TeleportService.getInstance().teleportPlayer(teleportRequest.getSender(), player);
+            return;
         }
+
         player.sendPlainMessage("The teleport request " + switch (teleportRequest.getState()) {
             case SENT -> new IllegalStateException();
             case ACCEPTED -> "was already accepted.";

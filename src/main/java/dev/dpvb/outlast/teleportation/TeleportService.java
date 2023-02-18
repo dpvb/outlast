@@ -39,7 +39,7 @@ public class TeleportService {
      */
     public @NotNull TeleportRequest requestTeleport(@NotNull Player player, @NotNull Player target) {
         final TeleportRequest request = new TeleportRequest(player, target);
-        getRequests(target).add(request);
+        requestProcessor.setRequest(target, request);
         return request;
     }
 
@@ -64,14 +64,27 @@ public class TeleportService {
     }
 
     /**
-     * Gets the teleport requests for a player.
+     * Use ChannelingTeleport to Teleport a Player to another Player.
+     * @param player the player teleporting
+     * @param target the destination player
+     * @return ChannelingTeleport
+     */
+    public ChannelingTeleport teleportPlayer(@NotNull Player player, @NotNull Player target) {
+        if (teleportRunner == null) throw new IllegalStateException("Teleport runner not initialized");
+        ChannelingTeleport.PlayerChannel channel = new ChannelingTeleport.PlayerChannel(player, target);
+        teleportRunner.add(channel);
+        return channel;
+    }
+
+    /**
+     * Gets the TeleportRequest for a player.
      *
      * @param player a player
-     * @return the teleport requests for the player
+     * @return the teleport requests for the player or null
      */
-    public @NotNull Queue<TeleportRequest> getRequests(@NotNull Player player) {
+    public TeleportRequest getRequest(@NotNull Player player) {
         if (requestProcessor == null) throw new IllegalStateException("Request processor not initialized");
-        return requestProcessor.getRequests(player);
+        return requestProcessor.getRequest(player);
     }
 
     public void setupRunner() {

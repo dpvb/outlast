@@ -44,7 +44,7 @@ class TeamInviteProcessor extends BukkitRunnable {
                     player.sendPlainMessage("Your invite to join " + invite.getTeamName() + " has expired.");
                 }
             });
-            // remove accepts+declines
+            // remove non sents
             inviteMap.values().removeIf(invite -> invite.state != TeamInvite.State.SENT);
         }
     }
