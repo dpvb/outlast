@@ -21,7 +21,7 @@ public class TeamService {
     private static final int TEAM_LIMIT = 3;
     private PlayerCache playerCache;
     private TeamCache teamCache;
-    private TeamRequestProcessor requestProcessor;
+    private TeamInviteProcessor inviteProcessor;
 
     private TeamService() {}
 
@@ -111,11 +111,11 @@ public class TeamService {
     }
 
 
-    public TeamRequest invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
-        // create request
-        final TeamRequest request = new TeamRequest(sender, teamName);
-        requestProcessor.putRequest(target, request);
-        return request;
+    public TeamInvite invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
+        // create invite
+        final TeamInvite invite = new TeamInvite(sender, teamName);
+        inviteProcessor.putInvite(target, invite);
+        return invite;
     }
 
     /**
@@ -198,8 +198,8 @@ public class TeamService {
         return team.getLeader().equals(player);
     }
 
-    public @Nullable TeamRequest getTeamRequest(@NotNull Player player) {
-        return requestProcessor.getRequests(player);
+    public @Nullable TeamInvite getTeamInvite(@NotNull Player player) {
+        return inviteProcessor.getInvites(player);
     }
 
     public boolean isTeamFull(@NotNull String teamName) {
@@ -211,11 +211,11 @@ public class TeamService {
         // capture cache instances
         playerCache = SQLService.getInstance().getPlayerCache();
         teamCache = SQLService.getInstance().getTeamCache();
-        // set up request processor
-        if (requestProcessor != null && !requestProcessor.isCancelled()) {
-            requestProcessor.cancel();
+        // set up processor
+        if (inviteProcessor != null && !inviteProcessor.isCancelled()) {
+            inviteProcessor.cancel();
         }
-        requestProcessor = new TeamRequestProcessor();
+        inviteProcessor = new TeamInviteProcessor();
     }
 
     public static TeamService getInstance() {

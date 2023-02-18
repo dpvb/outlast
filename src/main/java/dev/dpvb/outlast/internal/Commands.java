@@ -13,7 +13,7 @@ import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teams.TeamError;
-import dev.dpvb.outlast.teams.TeamRequest;
+import dev.dpvb.outlast.teams.TeamInvite;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
 import dev.dpvb.outlast.teleportation.TeleportService;
@@ -149,8 +149,8 @@ class Commands {
         }
 
         // invite player
-        final TeamRequest teamRequest = teamService.invitePlayer(player, team, target);
-        player.sendPlainMessage("Request will timeout in " + TeamRequest.TIMEOUT + " seconds.");
+        final TeamInvite teamInvite = teamService.invitePlayer(player, team, target);
+        player.sendPlainMessage("Request will timeout in " + TeamInvite.TIMEOUT + " seconds.");
         target.sendPlainMessage(player.getName() + " sent you an invite to join Team " + team);
     }
 
@@ -161,17 +161,17 @@ class Commands {
         final TeamService teamService = TeamService.getInstance();
 
         // check for pending requests and join if possible
-        final TeamRequest teamRequest = teamService.getTeamRequest(player);
-        if (teamRequest == null) {
+        final TeamInvite teamInvite = teamService.getTeamInvite(player);
+        if (teamInvite == null) {
             player.sendPlainMessage("You do not have any pending team requests.");
             return;
         }
 
         // attempt to accept and join
-        if (teamRequest.getState() == TeamRequest.State.SENT) {
+        if (teamInvite.getState() == TeamInvite.State.SENT) {
             try {
-                teamService.joinTeam(teamRequest.getTeamName(), player.getUniqueId());
-                teamRequest.accept(); // move to accepted state after joining
+                teamService.joinTeam(teamInvite.getTeamName(), player.getUniqueId());
+                teamInvite.accept(); // move to accepted state after joining
                 player.sendPlainMessage("Joined team!");
             } catch (TeamError.DoesNotExist | TeamError.Full e) {
                 player.sendPlainMessage(e.getMessage()); // FIXME make this more specialized and elegant
@@ -183,10 +183,10 @@ class Commands {
             return;
         }
 
-        player.sendPlainMessage("The team request " + switch (teamRequest.getState()) {
+        player.sendPlainMessage("The team request " + switch (teamInvite.getState()) {
             case SENT -> new IllegalStateException();
             case ACCEPTED -> "was already accepted.";
-            case DENIED -> "was denied.";
+            case DECLINED -> "was declined.";
             case EXPIRED -> "expired.";
         });
     }

@@ -6,66 +6,66 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 
 /**
- * A request to join to a team.
+ * An invitation to join a team.
  */
-public class TeamRequest {
+public class TeamInvite {
     /**
-     * The seconds it takes for a team request to expire.
+     * The seconds it takes for a team invite to expire.
      */
     public static final long TIMEOUT = 300; // 5 minutes
 
     /**
-     * Represents the state of a request.
+     * Represents the state of an invitation.
      */
     public enum State {
         /**
-         * The request has been sent.
+         * The invite has been sent.
          */
         SENT,
         /**
-         * The request has been accepted.
+         * The invite has been accepted.
          */
         ACCEPTED,
         /**
-         * The request has been denied.
+         * The invite has been declined.
          */
-        DENIED,
+        DECLINED,
         /**
-         * The request has expired.
+         * The invite has expired.
          */
         EXPIRED,
     }
 
     private final Instant instant = Instant.now();
-    private final Player sender;
+    private final Player invitee;
     private final String teamName;
     @NotNull State state = State.SENT;
 
-    public TeamRequest(@NotNull Player sender, @NotNull String teamName) {
-        this.sender = sender;
+    public TeamInvite(@NotNull Player invitee, @NotNull String teamName) {
+        this.invitee = invitee;
         this.teamName = teamName;
     }
 
     /**
-     * Gets the state of the request.
+     * Gets the state of the invitation.
      *
-     * @return the state of the request
+     * @return the state of the invitation
      */
     public @NotNull State getState() {
         return state;
     }
 
     /**
-     * Gets the player who sent the request.
+     * Gets the player being invited.
      *
-     * @return the player who sent the request
+     * @return the player being invited
      */
-    public @NotNull Player getSender() {
-        return sender;
+    public @NotNull Player getInvitee() {
+        return invitee;
     }
 
     /**
-     * Gets the name of the team the request is for.
+     * Gets the name of the team the invitation is from.
      *
      * @return the name of the team
      */
@@ -74,21 +74,21 @@ public class TeamRequest {
     }
 
     /**
-     * Gets the time since the request was created in seconds.
+     * Gets the time since the invitation was created in seconds.
      *
-     * @return the seconds since the request was created
+     * @return the seconds since the invitation was created
      */
     public long getTimeSince() {
         return Instant.now().getEpochSecond() - instant.getEpochSecond();
     }
 
     /**
-     * Accepts the request.
+     * Accepts the invitation.
      * <p>
-     * This method will only return true if the request has not already been
+     * This method will only return true if the invite has not already been
      * accepted, denied or has expired.
      *
-     * @return true if the request was accepted successfully
+     * @return true if the invitation was accepted successfully
      */
     public boolean accept() {
         if (state != State.SENT) {
@@ -99,18 +99,18 @@ public class TeamRequest {
     }
 
     /**
-     * Denies the request.
+     * Declines the invitation.
      * <p>
-     * This method will only return true if the request has not already been
-     * accepted, denied or has expired.
+     * This method will only return true if the invite has not already been
+     * accepted, declined or has expired.
      *
-     * @return true if the request was denied successfully
+     * @return true if the invitation was declined successfully
      */
-    public boolean deny() {
+    public boolean decline() {
         if (state != State.SENT) {
             return false;
         }
-        state = State.DENIED;
+        state = State.DECLINED;
         return true;
     }
 }
