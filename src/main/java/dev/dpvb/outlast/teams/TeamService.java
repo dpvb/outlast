@@ -112,10 +112,9 @@ public class TeamService {
     }
 
 
-    // TODO update signature
-    public TeamInvite invitePlayer(@NotNull Player sender, @NotNull String teamName, @NotNull Player target) {
+    public TeamInvite invitePlayer(@NotNull Player target, @NotNull String teamName) {
         // create invite
-        final TeamInvite invite = new TeamInvite(sender, teamName);
+        final TeamInvite invite = new TeamInvite(target, teamName);
         inviteProcessor.getInvites(target).add(invite);
         return invite;
     }

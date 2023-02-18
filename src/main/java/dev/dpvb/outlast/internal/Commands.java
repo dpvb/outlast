@@ -149,7 +149,7 @@ class Commands {
         }
 
         // invite player
-        final TeamInvite teamInvite = teamService.invitePlayer(player, team, target);
+        final TeamInvite teamInvite = teamService.invitePlayer(target, team);
         player.sendPlainMessage("Request will timeout in " + TeamInvite.TIMEOUT + " seconds.");
         target.sendPlainMessage(player.getName() + " sent you an invite to join Team " + team);
     }
