@@ -11,8 +11,8 @@ import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
-import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import dev.dpvb.outlast.teams.TeamError;
 import dev.dpvb.outlast.teams.TeamRequest;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportRequest;
@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 class Commands {
 
@@ -102,18 +101,14 @@ class Commands {
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
         final Player player = (Player) sender;
-        final TeamService teamService = TeamService.getInstance();
-        // check if they are in a team already
-        if (teamService.getTeam(player.getUniqueId()) != null) {
-            player.sendPlainMessage("You are already on a team.");
-            return;
-        }
-        // attempt to create the team
-        final boolean success = teamService.createTeam(name, player.getUniqueId());
-        if (!success) {
-            player.sendPlainMessage("A team with this name already exists.");
-        } else {
+        // create the team
+        try {
+            TeamService.getInstance().createTeam(name, player.getUniqueId());
             player.sendPlainMessage("Created Team " + name + ".");
+        } catch (TeamError.Exists e) {
+            player.sendPlainMessage(e.getMessage());
+        } catch (TeamError.PlayerAlreadyTeamed e) {
+            player.sendPlainMessage("You are already on a team.");
         }
     }
 
@@ -180,11 +175,16 @@ class Commands {
         // attempt to accept and join
         if (teamRequest.getState() == TeamRequest.State.SENT) {
             teamRequest.accept();
-            boolean joined = teamService.joinTeam(teamRequest.getTeamName(), player.getUniqueId());
-            if (!joined) {
-                player.sendPlainMessage("Could not join team for some reason.");
-            } else {
+            try {
+                teamService.joinTeam(teamRequest.getTeamName(), player.getUniqueId());
                 player.sendPlainMessage("Joined team!");
+            } catch (TeamError.DoesNotExist | TeamError.Full e) {
+                player.sendPlainMessage(e.getMessage()); // FIXME make this more specialized and elegant
+                                                         //  Full in particular I think will be encountered quite frequently
+                                                         //  so let's focus on that branch
+                throw new RuntimeException(e);
+            } catch (TeamError.PlayerAlreadyTeamed e) {
+                throw new RuntimeException(e); // safe, we checked for this above
             }
             return;
         }
@@ -241,12 +241,11 @@ class Commands {
     @CommandDescription("Leave your team")
     public void leaveTeam(CommandSender sender) {
         final Player player = (Player) sender;
-        final TeamService teamService = TeamService.getInstance();
-        final boolean success = teamService.leaveTeam(player.getUniqueId());
-        if (!success) {
-            player.sendPlainMessage("You are not in a team.");
-        } else {
+        try {
+            TeamService.getInstance().leaveTeam(player.getUniqueId());
             player.sendPlainMessage("You left the team.");
+        } catch (TeamError.PlayerNotTeamed ignored) {
+            player.sendPlainMessage("You are not in a team.");
         }
     }
 

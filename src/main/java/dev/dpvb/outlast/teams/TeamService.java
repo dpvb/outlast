@@ -5,7 +5,6 @@ import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static dev.dpvb.outlast.teams.TeamError.*;
 
 public class TeamService {
     private static final TeamService INSTANCE = new TeamService();
@@ -42,25 +43,22 @@ public class TeamService {
     }
 
     /**
-     * Creates a new team.
-     * <p>
-     * If a team with the given name already exists, this method returns false.
+     * Creates a new team with provided name and leader.
      *
      * @param teamName the name of the new team
      * @param leader the leader of the new team
-     * @return true unless a team with name {@code teamName} already exists
+     * @throws Exists if a team already exists with {@code teamName}
+     * @throws PlayerAlreadyTeamed if {@code leader} is already in a team
      */
-    public boolean createTeam(@NotNull String teamName, @NotNull UUID leader) {
-        // return false if a team already exists with this name
+    public void createTeam(@NotNull String teamName, @NotNull UUID leader) throws Exists, PlayerAlreadyTeamed {
+        // throw if a team already exists with this name
         if (getTeamModel(teamName) != null) {
-            return false;
+            throw new Exists(teamName);
         }
-        // remove the leader from their current team if needed
-        final var leaderModel = getPlayerModel(leader);
-        if (leaderModel.getTeam_name() != null) {
-            if (!leaveTeam(leader)) {
-                throw new IllegalStateException("Unable to create team as unable to leave team");
-            }
+        // throw if the leader is already in a team
+        final var leaderTeam = getPlayerModel(leader).getTeam_name();
+        if (leaderTeam != null) {
+            throw new PlayerAlreadyTeamed(leaderTeam);
         }
         // create the team
         teamCache.createModel(teamName, sqlTeam -> {
@@ -70,7 +68,6 @@ public class TeamService {
         playerCache.updateModel(leader, sqlPlayer -> {
             sqlPlayer.setTeam_name(teamName);
         });
-        return true;
     }
 
     private @Nullable SQLTeam getTeamModel(@NotNull String teamName) {
@@ -80,32 +77,37 @@ public class TeamService {
 
     /**
      * Adds a player to a team.
-     * <p>
-     * If {@code teamName} does not exist or the team is full, this method should return false.
      *
      * @param player the player to add
-     * @return true if the team exists, there was space, and the player was added
+     * @throws DoesNotExist if a team with {@code teamName} does not exist
+     * @throws Full if the team is full
+     * @throws PlayerAlreadyTeamed if {@code player} is already in a team
      */
-    public boolean joinTeam(@NotNull String teamName, @NotNull UUID player) {
+    public void joinTeam(@NotNull String teamName, @NotNull UUID player) throws DoesNotExist, Full, PlayerAlreadyTeamed {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         if (playerCache == null) throw new IllegalStateException("playerCache not initialized");
 
         // check if team exists
         final SQLTeam team = getTeamModel(teamName);
         if (team == null) {
-            return false;
+            throw new DoesNotExist(teamName);
         }
 
         // check if team is full
         if (isTeamFull(teamName)) {
-            return false;
+            throw new Full();
+        }
+
+        // check if player is already in a team
+        final String playerTeam = getPlayerModel(player).getTeam_name();
+        if (playerTeam != null) {
+            throw new PlayerAlreadyTeamed(playerTeam);
         }
 
         // add player to team in db
         playerCache.updateModel(player, sqlPlayer -> {
             sqlPlayer.setTeam_name(teamName);
         });
-        return true;
     }
 
 
@@ -122,20 +124,18 @@ public class TeamService {
      * This method removes the player from the team and removes the team if
      * removing the player leaves the team with no members. It also reassigns
      * the team's leader if {@code player} is the current leader.
-     * <p>
-     * This method returns false if the player is not in a team.
      *
      * @param player the player to remove
-     * @return true unless the player was not in a team
+     * @throws PlayerNotTeamed if the player is not in a team
      */
-    public boolean leaveTeam(@NotNull UUID player) {
+    public void leaveTeam(@NotNull UUID player) throws PlayerNotTeamed {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
 
         // get the player's team name
         final String teamName = getTeam(player);
         if (teamName == null) {
             // they have no team
-            return false;
+            throw new PlayerNotTeamed();
         }
 
         // Get a copy of all members in the team
@@ -160,8 +160,6 @@ public class TeamService {
                 });
             }
         }
-
-        return true;
     }
 
     /**
@@ -181,6 +179,7 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    // FIXME do you want this to stay boolean? makes more sense to me
     /**
      * Checks if the provided player is in fact the leader of the named team.
      * <p>
