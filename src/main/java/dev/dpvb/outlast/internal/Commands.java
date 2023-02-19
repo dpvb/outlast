@@ -283,6 +283,28 @@ class Commands {
     @CommandMethod(value = "team sethome", requiredSender = Player.class)
     @CommandDescription("Sets the team home to your current location")
     public void setTeamHome(CommandSender sender) {
+        final Player player = (Player) sender;
+        // check if player is on a team.
+        final TeamService teamService = TeamService.getInstance();
+        String teamName = teamService.getTeam(player.getUniqueId());
+        if (teamName == null) {
+            player.sendPlainMessage("You must be on a team to perform this command.");
+            return;
+        }
+
+        // check if player is leader
+        if (!teamService.isLeaderOfTeam(player.getUniqueId(), teamName)) {
+            player.sendPlainMessage("You must be the team leader to perform this command.");
+            return;
+        }
+
+        // attempt to set the team home.
+        try {
+            teamService.setTeamHome(teamName, player.getLocation());
+            player.sendPlainMessage("Set the team home to your location.");
+        } catch (TeamError.DoesNotExist e) {
+            player.sendPlainMessage(e.getMessage());
+        }
     }
 
     @CommandMethod(value = "team home", requiredSender = Player.class)
@@ -325,13 +347,9 @@ class Commands {
         final Player player = (Player) sender;
         final SQLLocation spawn = locationCache.getModel("spawn");
         if (spawn == null) {
-            locationCache.createModel("spawn", loc -> {
-                loc.setLocation(player.getLocation());
-            });
+            locationCache.createModel("spawn", loc -> loc.setLocation(player.getLocation()));
         } else {
-            locationCache.updateModel("spawn", loc -> {
-                loc.setLocation(player.getLocation());
-            });
+            locationCache.updateModel("spawn", loc -> loc.setLocation(player.getLocation()));
         }
         player.sendPlainMessage("Spawn point set.");
     }

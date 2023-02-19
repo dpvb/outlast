@@ -1,10 +1,12 @@
 package dev.dpvb.outlast.teams;
 
 import dev.dpvb.outlast.sql.SQLService;
+import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +24,7 @@ public class TeamService {
     private static final int TEAM_LIMIT = 3;
     private PlayerCache playerCache;
     private TeamCache teamCache;
+    private LocationCache locationCache;
     private TeamInviteProcessor inviteProcessor;
 
     private TeamService() {}
@@ -74,6 +77,30 @@ public class TeamService {
     private @Nullable SQLTeam getTeamModel(@NotNull String teamName) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         return teamCache.getModel(teamName);
+    }
+
+    public void setTeamHome(@NotNull String teamName, @NotNull Location location) throws DoesNotExist {
+        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
+        if (locationCache == null) throw new IllegalStateException("locationCache not initialized");
+
+        // check if team exists
+        final SQLTeam team = getTeamModel(teamName);
+        if (team == null) {
+            throw new DoesNotExist(teamName);
+        }
+
+        final String locationKey = teamName + "_home";
+        // attempt to create location
+        if (locationCache.getModel(locationKey) == null) {
+            locationCache.createModel(locationKey, sqlLocation -> sqlLocation.setLocation(location));
+        } else {
+            locationCache.updateModel(locationKey, sqlLocation -> sqlLocation.setLocation(location));
+        }
+
+        // set home location in team model
+        teamCache.updateModel(teamName, sqlTeam -> {
+            sqlTeam.setHomeLocationName(locationKey);
+        });
     }
 
     /**
@@ -151,7 +178,10 @@ public class TeamService {
 
         // if the team without the player has 0 members left, delete the team
         if (members.size() == 0) {
+            // DELETE THE TEAM
             teamCache.deleteModel(teamName);
+            // DELETE HOME LOCATION OF TEAM
+            locationCache.deleteModel(teamName + "_home");
         } else {
             // check if the player leaving is the current leader of the team
             if (teamCache.getModel(teamName).getLeader().equals(player)) {
@@ -212,6 +242,7 @@ public class TeamService {
         // capture cache instances
         playerCache = SQLService.getInstance().getPlayerCache();
         teamCache = SQLService.getInstance().getTeamCache();
+        locationCache = SQLService.getInstance().getLocationCache();
         // set up processor
         if (inviteProcessor != null && !inviteProcessor.isCancelled()) {
             inviteProcessor.cancel();
