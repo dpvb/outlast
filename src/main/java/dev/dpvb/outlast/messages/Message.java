@@ -61,12 +61,15 @@ public interface Message extends ComponentLike {
 
     /**
      * Creates a message from a MiniMessage string.
+     * <p>
+     * The returned message supports {@link RawText} operations.
      *
      * @param message a MiniMessage string
      * @return a new message with the MiniMessage string as its source
+     * @see RawText#of(String)
      */
-    static Message mini(@NotNull String message) {
-        return from(MiniMessageService.build(message));
+    static RawText mini(@NotNull String message) {
+        return RawText.of(message);
     }
 
     /**
