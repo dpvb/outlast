@@ -1,14 +1,13 @@
 package dev.dpvb.outlast.teams;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.messages.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 // runs every second and marks expired invites
 class TeamInviteProcessor extends BukkitRunnable {
@@ -41,7 +40,7 @@ class TeamInviteProcessor extends BukkitRunnable {
                 if (invite.state != TeamInvite.State.SENT) return;
                 if (invite.getTimeSince() >= TeamInvite.TIMEOUT) {
                     invite.state = TeamInvite.State.EXPIRED;
-                    player.sendPlainMessage("Your invite to join " + invite.getTeamName() + " has expired.");
+                    Messages.game("leader.invite.sent.expiration").send(player);
                 }
             });
             // remove non sents

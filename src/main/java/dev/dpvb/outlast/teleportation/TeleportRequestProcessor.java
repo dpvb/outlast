@@ -1,14 +1,14 @@
 package dev.dpvb.outlast.teleportation;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.messages.Messages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 // runs every second and marks expired requests
 class TeleportRequestProcessor extends BukkitRunnable {
@@ -44,7 +44,9 @@ class TeleportRequestProcessor extends BukkitRunnable {
                 if (request.state != TeleportRequest.State.SENT) return;
                 if (request.getTimeSince() >= TeleportRequest.TIMEOUT) {
                     request.state = TeleportRequest.State.EXPIRED;
-                    request.getSender().sendPlainMessage("Your teleport request to " + player.getName() + " has expired.");
+                    Messages.game("tp.expired.target_")
+                            .resolve(Placeholder.unparsed("player", request.getSender().getName()))
+                            .send(request.getSender());
                 }
             });
             // remove non sents
