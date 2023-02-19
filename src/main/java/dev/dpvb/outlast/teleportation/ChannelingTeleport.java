@@ -80,19 +80,6 @@ public abstract class ChannelingTeleport {
         return false;
     }
 
-    static class TeamHomeChannel extends ChannelingTeleport {
-        private final Location destination;
-        TeamHomeChannel(@NotNull Player teleporting, @NotNull Location destination) {
-            super(teleporting);
-            this.destination = destination;
-        }
-
-        @Override
-        boolean execute() {
-            return teleporting.teleport(destination);
-        }
-    }
-
     static class PlayerChannel extends ChannelingTeleport {
         private final Player destination;
 

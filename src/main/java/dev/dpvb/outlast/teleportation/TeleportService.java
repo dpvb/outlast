@@ -37,7 +37,7 @@ public class TeleportService {
             return null;
         }
 
-        ChannelingTeleport teleport = new ChannelingTeleport.TeamHomeChannel(player, teamHome);
+        ChannelingTeleport teleport = new ChannelingTeleport.LocationChannel(player, teamHome);
         teleportRunner.add(teleport);
         return teleport;
     }
