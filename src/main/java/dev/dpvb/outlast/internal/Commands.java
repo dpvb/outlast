@@ -6,6 +6,7 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
+import dev.dpvb.outlast.messages.Message;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
@@ -226,7 +227,7 @@ class Commands {
         // check for pending requests and join if possible
         final TeamInvite teamInvite = teamService.getInvite(player);
         if (teamInvite == null) {
-            player.sendPlainMessage("You do not have any pending team requests.");
+            Message.mini("<red>You do not have any pending team requests.").send(player);
             return;
         }
 
@@ -237,9 +238,9 @@ class Commands {
                 teamInvite.accept(); // move to accepted state after joining
                 player.sendPlainMessage("Joined team!");
             } catch (TeamError.DoesNotExist | TeamError.Full e) {
-                player.sendPlainMessage(e.getMessage());
+                Message.mini("<red>" + e.getMessage()).send(player);
             } catch (TeamError.PlayerAlreadyTeamed ignored) {
-                player.sendPlainMessage("You are already in a team.");
+                Message.mini("<red>You are already in a team.").send(player);
             }
             return;
         }
