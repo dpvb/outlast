@@ -1,5 +1,6 @@
 package dev.dpvb.outlast.messages;
 
+import dev.dpvb.outlast.teams.TeamService;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -7,6 +8,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 /**
  * Represents a message with terminal ops and intermediate transform options.
@@ -25,9 +28,16 @@ public interface Message extends ComponentLike {
 
     /**
      * Sends this message to all online members of a given team.
+     *
+     * @param teamName a team name
      */
     default void sendTeam(@NotNull String teamName) {
-        // no-op for now, TODO
+        TeamService.getInstance().getTeamMembers(teamName)
+                .stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .filter(Player::isOnline)
+                .forEach(this::send);
     }
 
     /**

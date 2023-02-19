@@ -97,9 +97,10 @@ public class TeamService {
     /**
      * Gets the team home Location.
      *
-     * This method assumes the Team exists.
-     * @param teamName the name of the team we know exists.
-     * @return the home location or null if there is not one.
+     * @param teamName the name of the team
+     * @return the home location or null if there is not one
+     * @implNote This method assumes the team exists but returns null
+     * gracefully in the case that it does not.
      */
     public @Nullable Location getTeamHome(@NotNull String teamName) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
@@ -237,8 +238,8 @@ public class TeamService {
     /**
      * Gets the members of a team.
      * <p>
-     * If the returned is empty it means {@code teamName} does not exist (as
-     * a team cannot exist without members).
+     * If the returned list is empty it means {@code teamName} does not exist
+     * (as a team cannot exist without members).
      *
      * @param teamName the name of the team
      * @return a list of team members. May be empty.
@@ -261,6 +262,7 @@ public class TeamService {
      * @param teamName the name of the team to check
      * @return true if {@code player} is the leader of team {@code teamName}
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isLeaderOfTeam(@NotNull UUID player, @NotNull String teamName) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         final SQLTeam team = teamCache.getModel(teamName);

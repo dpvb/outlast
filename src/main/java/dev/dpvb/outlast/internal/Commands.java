@@ -22,7 +22,7 @@ import dev.dpvb.outlast.teleportation.TeleportService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 class Commands {
@@ -449,5 +448,21 @@ class Commands {
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
+        var team = TeamService.getInstance().getTeam(player.getUniqueId());
+        if (team != null) {
+            team = TeamService.getInstance().getTeamMembers(team).stream()
+                    .map(Bukkit::getOfflinePlayer)
+                    .map(op -> {
+                        if (!op.isOnline()) return op.getName() + " (offline)";
+                        return "<hover:show_text:'Click to message " + op.getName() + "'>" +
+                                "<click:suggest_command:'/msg " + op.getName() + "'>" + op.getName() + "</click>";
+                    })
+                    .collect(Collectors.joining(", "));
+        } else {
+            team = "No team";
+        }
+        player.sendMessage(Message.mini("Test: <players>")
+                .resolve(Placeholder.parsed("players", team))
+        );
     }
 }

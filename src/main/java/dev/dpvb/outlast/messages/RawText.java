@@ -19,6 +19,9 @@ public interface RawText extends Message {
 
     /**
      * Replaces all occurrences of a string with another string.
+     * <p>
+     * Replacement occurs on the raw string; {@link #asComponent()}
+     * is not called.
      *
      * @param match a string to match
      * @param replacement a string to replace the match with
