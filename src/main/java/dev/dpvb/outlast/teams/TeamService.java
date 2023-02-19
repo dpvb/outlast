@@ -81,6 +81,21 @@ public class TeamService {
     }
 
     /**
+     * Set the leader provided you check the team exists and the player is already on the team.
+     * @param teamName name of the team that you are changing the leader of.
+     * @param newLeader the player on the team that you want to set leader to.
+     */
+    public void setLeader(@NotNull String teamName, @NotNull Player newLeader) {
+        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
+        if (getTeamModel(teamName) == null) {
+            throw new IllegalStateException("This is a critical error and should not happen. A team with this name does not exist.");
+        }
+        teamCache.updateModel(teamName, sqlTeam -> {
+            sqlTeam.setLeader(newLeader.getUniqueId());
+        });
+    }
+
+    /**
      * Gets the team home Location.
      *
      * This method assumes the Team exists.

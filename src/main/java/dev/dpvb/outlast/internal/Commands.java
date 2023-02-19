@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 class Commands {
 
@@ -53,8 +54,30 @@ class Commands {
 
     @Suggestions("team-members")
     public List<String> teamMembers(CommandContext<CommandSender> sender, String input) {
-        return List.of("TODO"); // TODO impl
+        if (sender.getSender() instanceof final Player player) {
+            final TeamService teamService = TeamService.getInstance();
+            String teamName = teamService.getTeam(player.getUniqueId());
+            if (teamName == null) {
+                return List.of("");
+            }
+            return teamService.getTeamMembers(teamName).stream()
+                    .map(Bukkit::getPlayer)
+                    .filter(p -> p != null && !player.equals(p))
+                    .map(Player::getName)
+                    .collect(Collectors.toList());
+        }
+        return List.of("");
     }
+
+    @Suggestions("players-except-self")
+    public List<String> playersExceptSelf(CommandContext<CommandSender> sender, String input) {
+        final String playerName = sender.getSender().getName();
+        return Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName)
+                .filter(name -> !name.equals(playerName))
+                .toList();
+    }
+
 
     // Player commands
     // TP commands
@@ -77,15 +100,6 @@ class Commands {
                                 .clickEvent(ClickEvent.suggestCommand("/tpaccept"))
                 ).append(Component.text(". The request will expire in " + TeleportRequest.TIMEOUT + " seconds."))
         ); // TODO tpdeny?
-    }
-
-    @Suggestions("players-except-self")
-    public List<String> playersExceptSelf(CommandContext<CommandSender> sender, String input) {
-        final String playerName = sender.getSender().getName();
-        return Bukkit.getOnlinePlayers().stream()
-                .map(Player::getName)
-                .filter(name -> !name.equals(playerName))
-                .toList();
     }
 
     @CommandMethod(value = "tpaccept", requiredSender = Player.class)
@@ -166,12 +180,6 @@ class Commands {
     public void invitePlayer(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
         final Player player = (Player) sender;
         final TeamService teamService = TeamService.getInstance();
-        // check if they are attempting to invite themselves.
-        if (player.equals(target)) {
-            player.sendPlainMessage("You can't invite yourself.");
-            return;
-        }
-
         // check if they are not on a team.
         String team = teamService.getTeam(player.getUniqueId());
         if (team == null) {
@@ -182,6 +190,12 @@ class Commands {
         // check if the sender is the leader.
         if (!teamService.isLeaderOfTeam(player.getUniqueId(), team)) {
             player.sendPlainMessage("You must be the team leader to do this.");
+            return;
+        }
+
+        // check if they are attempting to invite themselves.
+        if (player.equals(target)) {
+            player.sendPlainMessage("You can't invite yourself.");
             return;
         }
 
@@ -293,6 +307,38 @@ class Commands {
     @CommandMethod(value = "team setleader <player>", requiredSender = Player.class)
     @CommandDescription("Sets the team leader to the named teammate")
     public void setTeamLeader(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "team-members") Player target) {
+        final Player player = (Player) sender;
+        final TeamService teamService = TeamService.getInstance();
+        // check if player is in team.
+        String team = teamService.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendPlainMessage("You must be on a team to perform this command.");
+            return;
+        }
+
+        // check if sender is the leader
+        if (!teamService.isLeaderOfTeam(player.getUniqueId(), team)) {
+            player.sendPlainMessage("You must be the team leader to do this.");
+            return;
+        }
+
+        // check if they are attempting to set leader to themselves
+        if (player.equals(target)) {
+            player.sendPlainMessage("You are already the team leader.");
+            return;
+        }
+
+        // check if the player you want to invite is on your team.
+        String targetTeam = teamService.getTeam(target.getUniqueId());
+        if (targetTeam == null || !targetTeam.equals(team)) {
+            player.sendPlainMessage("They are not on your team.");
+            return;
+        }
+
+        // set the team leader;
+        teamService.setLeader(team, target);
+        player.sendPlainMessage("Transferred leadership to " + target.getName());
+        target.sendPlainMessage("You are now the team leader!");
     }
 
     @CommandMethod(value = "team sethome", requiredSender = Player.class)
