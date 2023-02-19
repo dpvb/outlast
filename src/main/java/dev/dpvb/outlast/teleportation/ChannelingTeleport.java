@@ -81,14 +81,15 @@ public abstract class ChannelingTeleport {
     }
 
     static class TeamHomeChannel extends ChannelingTeleport {
-        TeamHomeChannel(@NotNull Player teleporting) {
+        private final Location destination;
+        TeamHomeChannel(@NotNull Player teleporting, @NotNull Location destination) {
             super(teleporting);
+            this.destination = destination;
         }
 
         @Override
         boolean execute() {
-            // TODO get player's team's home
-            return false;
+            return teleporting.teleport(destination);
         }
     }
 

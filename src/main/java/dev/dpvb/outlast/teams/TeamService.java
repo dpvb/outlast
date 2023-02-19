@@ -4,6 +4,7 @@ import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
+import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
 import org.bukkit.Location;
@@ -77,6 +78,32 @@ public class TeamService {
     private @Nullable SQLTeam getTeamModel(@NotNull String teamName) {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
         return teamCache.getModel(teamName);
+    }
+
+    /**
+     * Gets the team home Location.
+     *
+     * This method assumes the Team exists.
+     * @param teamName the name of the team we know exists.
+     * @return the home location or null if there is not one.
+     */
+    public @Nullable Location getTeamHome(@NotNull String teamName) {
+        if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
+        if (locationCache == null) throw new IllegalStateException("locationCache not initialized");
+
+        final SQLTeam team = getTeamModel(teamName);
+        if (team == null) {
+            return null;
+        }
+        final String homeLocationName = team.getHomeLocationName();
+        if (homeLocationName == null) {
+            return null;
+        }
+        final SQLLocation sqlLocation = locationCache.getModel(homeLocationName);
+        if (sqlLocation == null) {
+            return null;
+        }
+        return sqlLocation.getLocation();
     }
 
     public void setTeamHome(@NotNull String teamName, @NotNull Location location) throws DoesNotExist {

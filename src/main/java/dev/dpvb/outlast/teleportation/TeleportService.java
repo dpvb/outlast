@@ -2,6 +2,8 @@ package dev.dpvb.outlast.teleportation;
 
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.models.SQLLocation;
+import dev.dpvb.outlast.teams.TeamService;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,15 +21,25 @@ public class TeleportService {
     /**
      * Teleports a player to the player's team's home.
      * <p>
-     * This method returns null if the player is not in a team or if the
+     * This method returns null if the
      * player's team does not currently have a home set.
      *
      * @param player the player to teleport
+     * @param teamName a team that we know exists.
      * @return a channeling teleport or null
      */
-    public @Nullable ChannelingTeleport teleportHome(@NotNull Player player) {
+    public @Nullable ChannelingTeleport teleportHome(@NotNull Player player, @NotNull String teamName) {
         if (teleportRunner == null) throw new IllegalStateException("Teleport runner not initialized");
-        return new ChannelingTeleport.TeamHomeChannel(player);
+
+        final TeamService teamService = TeamService.getInstance();
+        Location teamHome = teamService.getTeamHome(teamName);
+        if (teamHome == null) {
+            return null;
+        }
+
+        ChannelingTeleport teleport = new ChannelingTeleport.TeamHomeChannel(player, teamHome);
+        teleportRunner.add(teleport);
+        return teleport;
     }
 
     /**

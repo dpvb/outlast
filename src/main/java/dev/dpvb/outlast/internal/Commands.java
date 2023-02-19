@@ -311,8 +311,16 @@ class Commands {
     @CommandDescription("Teleports you to your team's home location if one is set")
     public void teamHome(CommandSender sender) {
         final Player player = (Player) sender;
-        // TODO Check for team
-        final var pendingTeleport = TeleportService.getInstance().teleportHome(player);
+        final TeamService teamService = TeamService.getInstance();
+        final String teamName = teamService.getTeam(player.getUniqueId());
+
+        // Check if player is in a team.
+        if (teamName == null) {
+            player.sendPlainMessage("You are not in a team.");
+            return;
+        }
+
+        final ChannelingTeleport pendingTeleport = TeleportService.getInstance().teleportHome(player, teamName);
         if (pendingTeleport == null) {
             player.sendPlainMessage("Your team does not have a home set.");
         }
