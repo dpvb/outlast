@@ -131,6 +131,21 @@ class Commands {
     }
 
     // Team commands
+    @CommandMethod(value = "team", requiredSender = Player.class)
+    @CommandDescription("List all team commands here.")
+    public void team(CommandSender sender) {
+        final Player player = (Player) sender;
+        player.sendPlainMessage(">> TEAM COMMANDS <<");
+        player.sendPlainMessage("- /team create <name> (Create a team)");
+        player.sendPlainMessage("- /team invite <username> (Invite player to your team)");
+        player.sendPlainMessage("- /team join (Accept incoming team invite)");
+        player.sendPlainMessage("- /team leave (Leave the team you are in)");
+        player.sendPlainMessage("- /team sethome (Set the home location of your team)");
+        player.sendPlainMessage("- /team home (Teleport to your team home)");
+        player.sendPlainMessage("- /team info [name] (Learn more about a team)");
+        player.sendPlainMessage("- /team setleader <username> (Give leader to a teammate)");
+    }
+
     @CommandMethod(value = "team create <name>", requiredSender = Player.class)
     @CommandDescription("Creates a team with a unique name")
     public void createTeam(CommandSender sender, @NotNull @Argument("name") @Regex(".{1,30}") String name) {
@@ -325,11 +340,6 @@ class Commands {
         if (pendingTeleport == null) {
             player.sendPlainMessage("Your team does not have a home set.");
         }
-    }
-
-    @CommandMethod(value = "team help", requiredSender = Player.class)
-    @CommandDescription("Lists all team commands")
-    public void teamHelp(CommandSender sender) {
     }
     // team commands end
 
