@@ -277,13 +277,15 @@ class Commands {
                 .filter(sqlPlayer -> teamName.equals(sqlPlayer.getTeam_name()))
                 .map(sqlPlayer -> Bukkit.getOfflinePlayer(sqlPlayer.getPlayer_uuid()))
                 .toList();
-        player.sendPlainMessage("Team " + name + ":");
-        player.sendPlainMessage(teamLeader.getName() + " (Leader)");
+
+        // Display It!
+        Message.mini("<#4B5CE9><bold>Team <white>" + name).send(player);
+        Message.mini("<#9AA4F8>> " + teamLeader.getName() + "<#4B5CE9><italic> (Leader)").send(player);
         for (OfflinePlayer offlinePlayer : otherMembers) {
             if (offlinePlayer.equals(teamLeader)) {
                 continue;
             }
-            player.sendPlainMessage(offlinePlayer.getName() + "");
+            Message.mini("<#9AA4F8>> " + offlinePlayer.getName() + "").send(player);
         }
     }
 
