@@ -2,6 +2,8 @@ package dev.dpvb.outlast.internal;
 
 import dev.dpvb.outlast.events.FirstTimeJoin;
 import dev.dpvb.outlast.events.JoinQuitMessages;
+import dev.dpvb.outlast.messages.Messages;
+import dev.dpvb.outlast.messages.MiniMessageService;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.teams.TeamService;
 import dev.dpvb.outlast.teleportation.TeleportService;
@@ -17,6 +19,8 @@ public class OutlastPlugin extends JavaPlugin {
     public void onEnable() {
         // Setup Configuration File
         setupConfigFile();
+        // Load Messages
+        loadMessages();
         // Setup Database
         setupDatabase();
         // Setup Commands
@@ -39,6 +43,11 @@ public class OutlastPlugin extends JavaPlugin {
     private void setupConfigFile() {
         saveDefaultConfig();
         Configuration.config = getConfig();
+    }
+
+    private void loadMessages() {
+        Messages.initBundles();
+        MiniMessageService.builderSetup(b -> {});
     }
 
     private void setupDatabase() {
