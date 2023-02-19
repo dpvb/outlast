@@ -320,6 +320,7 @@ class Commands {
             return;
         }
 
+        // Teleport them home baby
         final ChannelingTeleport pendingTeleport = TeleportService.getInstance().teleportHome(player, teamName);
         if (pendingTeleport == null) {
             player.sendPlainMessage("Your team does not have a home set.");
