@@ -13,7 +13,7 @@ public final class SQLPlayer {
     private short kills = 0;
     private short deaths = 0;
     private int coins = 0;
-    private byte strength_modifier = 0;
+    private byte attack_damage = 1;
     private @NotNull Date first_join_time = Date.from(Instant.now());
     private @NotNull Date last_join_time = Date.from(Instant.now());
     private @Nullable String team_name;
@@ -50,12 +50,12 @@ public final class SQLPlayer {
         this.coins = coins;
     }
 
-    public byte getStrength_modifier() {
-        return strength_modifier;
+    public byte getAttack_damage() {
+        return attack_damage;
     }
 
-    public void setStrength_modifier(byte strength_modifier) {
-        this.strength_modifier = strength_modifier;
+    public void setAttack_damage(byte attack_damage) {
+        this.attack_damage = attack_damage;
     }
 
     public @NotNull Date getFirst_join_time() {
@@ -93,7 +93,7 @@ public final class SQLPlayer {
         if (kills != sqlPlayer.kills) return false;
         if (deaths != sqlPlayer.deaths) return false;
         if (coins != sqlPlayer.coins) return false;
-        if (strength_modifier != sqlPlayer.strength_modifier) return false;
+        if (attack_damage != sqlPlayer.attack_damage) return false;
         if (!first_join_time.equals(sqlPlayer.first_join_time)) return false;
         if (!last_join_time.equals(sqlPlayer.last_join_time)) return false;
         return Objects.equals(team_name, sqlPlayer.team_name);
@@ -105,7 +105,7 @@ public final class SQLPlayer {
         result = 31 * result + (int) kills;
         result = 31 * result + (int) deaths;
         result = 31 * result + coins;
-        result = 31 * result + (int) strength_modifier;
+        result = 31 * result + (int) attack_damage;
         result = 31 * result + first_join_time.hashCode();
         result = 31 * result + last_join_time.hashCode();
         result = 31 * result + (team_name != null ? team_name.hashCode() : 0);
@@ -119,7 +119,7 @@ public final class SQLPlayer {
                 ", kills=" + kills +
                 ", deaths=" + deaths +
                 ", coins=" + coins +
-                ", strength_modifier=" + strength_modifier +
+                ", strength_modifier=" + attack_damage +
                 ", first_join_time=" + first_join_time +
                 ", last_join_time=" + last_join_time +
                 ", team_name='" + team_name + '\'' +

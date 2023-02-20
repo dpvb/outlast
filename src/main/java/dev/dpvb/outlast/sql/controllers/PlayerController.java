@@ -40,7 +40,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));
                 sqlPlayer.setCoins(rs.getInt("coins"));
-                sqlPlayer.setStrength_modifier(rs.getByte("strength_modifier"));
+                sqlPlayer.setAttack_damage(rs.getByte("attack_damage"));
                 sqlPlayer.setFirst_join_time(rs.getTimestamp("first_join_time"));
                 sqlPlayer.setLast_join_time(rs.getTimestamp("last_join_time"));
                 sqlPlayer.setTeam_name(rs.getString("team_name"));
@@ -63,7 +63,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     public List<SQLPlayer> getModels() {
         final List<SQLPlayer> players = new ArrayList<>();
         try {
-            final PreparedStatement ps = connection.prepareStatement("SELECT BIN_TO_UUID(player_uuid) as player_uuid, kills, deaths, coins, strength_modifier, first_join_time, last_join_time, team_name FROM " + TABLE);
+            final PreparedStatement ps = connection.prepareStatement("SELECT BIN_TO_UUID(player_uuid) as player_uuid, kills, deaths, coins, attack_damage, first_join_time, last_join_time, team_name FROM " + TABLE);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 final UUID uuid = UUID.fromString(rs.getString("player_uuid"));
@@ -71,7 +71,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
                 sqlPlayer.setKills(rs.getShort("kills"));
                 sqlPlayer.setDeaths(rs.getShort("deaths"));
                 sqlPlayer.setCoins(rs.getInt("coins"));
-                sqlPlayer.setStrength_modifier(rs.getByte("strength_modifier"));
+                sqlPlayer.setAttack_damage(rs.getByte("attack_damage"));
                 sqlPlayer.setFirst_join_time(rs.getTimestamp("first_join_time"));
                 sqlPlayer.setLast_join_time(rs.getTimestamp("last_join_time"));
                 sqlPlayer.setTeam_name(rs.getString("team_name"));
@@ -88,11 +88,11 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
     @Override
     public void updateModel(SQLPlayer sqlPlayer) {
         try {
-            final PreparedStatement ps = connection.prepareStatement("UPDATE " + TABLE + " SET kills = ?, deaths = ?, coins = ?, strength_modifier = ?, first_join_time = ?, last_join_time = ?, team_name = ? WHERE player_uuid = UUID_TO_BIN(?)");
+            final PreparedStatement ps = connection.prepareStatement("UPDATE " + TABLE + " SET kills = ?, deaths = ?, coins = ?, attack_damage = ?, first_join_time = ?, last_join_time = ?, team_name = ? WHERE player_uuid = UUID_TO_BIN(?)");
             ps.setShort(1, sqlPlayer.getKills());
             ps.setShort(2, sqlPlayer.getDeaths());
             ps.setInt(3, sqlPlayer.getCoins());
-            ps.setByte(4, sqlPlayer.getStrength_modifier());
+            ps.setByte(4, sqlPlayer.getAttack_damage());
             ps.setTimestamp(5, new Timestamp(sqlPlayer.getFirst_join_time().getTime()));
             ps.setTimestamp(6, new Timestamp(sqlPlayer.getLast_join_time().getTime()));
             ps.setString(7, sqlPlayer.getTeam_name());
@@ -112,7 +112,7 @@ public class PlayerController extends Controller<UUID, SQLPlayer> {
             ps.setShort(2, sqlPlayer.getKills());
             ps.setShort(3, sqlPlayer.getDeaths());
             ps.setInt(4, sqlPlayer.getCoins());
-            ps.setByte(5, sqlPlayer.getStrength_modifier());
+            ps.setByte(5, sqlPlayer.getAttack_damage());
             ps.setTimestamp(6, new Timestamp(sqlPlayer.getFirst_join_time().getTime()));
             ps.setTimestamp(7, new Timestamp(sqlPlayer.getLast_join_time().getTime()));
             ps.setString(8, sqlPlayer.getTeam_name());

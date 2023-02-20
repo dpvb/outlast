@@ -28,6 +28,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -452,26 +453,38 @@ class Commands {
         player.teleport(target);
     }
 
+
+    @CommandMethod(value = "heal", requiredSender = Player.class)
+    @CommandDescription("Heal to full health.")
+    @CommandPermission("outlast.heal")
+    public void heal(CommandSender sender) {
+        final Player player = (Player) sender;
+        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        player.setFoodLevel(20);
+        Message.mini("<yellow>You were healed.").send(player);
+    }
+
     @CommandMethod(value = "test", requiredSender = Player.class)
     @CommandDescription("Outlast test method!")
     @CommandPermission("outlast.test")
     public void test(CommandSender sender) {
         final Player player = (Player) sender;
-        var team = TeamService.getInstance().getTeam(player.getUniqueId());
-        if (team != null) {
-            team = TeamService.getInstance().getTeamMembers(team).stream()
-                    .map(Bukkit::getOfflinePlayer)
-                    .map(op -> {
-                        if (!op.isOnline()) return op.getName() + " (offline)";
-                        return "<hover:show_text:'Click to message " + op.getName() + "'>" +
-                                "<click:suggest_command:'/msg " + op.getName() + "'>" + op.getName() + "</click>";
-                    })
-                    .collect(Collectors.joining(", "));
-        } else {
-            team = "No team";
-        }
-        player.sendMessage(Message.mini("Test: <players>")
-                .resolve(Placeholder.parsed("players", team))
-        );
+
+//        var team = TeamService.getInstance().getTeam(player.getUniqueId());
+//        if (team != null) {
+//            team = TeamService.getInstance().getTeamMembers(team).stream()
+//                    .map(Bukkit::getOfflinePlayer)
+//                    .map(op -> {
+//                        if (!op.isOnline()) return op.getName() + " (offline)";
+//                        return "<hover:show_text:'Click to message " + op.getName() + "'>" +
+//                                "<click:suggest_command:'/msg " + op.getName() + "'>" + op.getName() + "</click>";
+//                    })
+//                    .collect(Collectors.joining(", "));
+//        } else {
+//            team = "No team";
+//        }
+//        player.sendMessage(Message.mini("Test: <players>")
+//                .resolve(Placeholder.parsed("players", team))
+//        );
     }
 }
