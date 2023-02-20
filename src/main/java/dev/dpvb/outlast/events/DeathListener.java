@@ -10,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-public class ADModifier implements Listener {
+public class DeathListener implements Listener {
 
     private static final double LOW_AD = 1.0;
     private static final double HIGH_AD = OutlastPlugin.Configuration.getADBound();
@@ -25,7 +25,12 @@ public class ADModifier implements Listener {
         final double currAD = victimAD.getBaseValue();
         final double newAD = Math.max(LOW_AD, currAD - 1);
         victimAD.setBaseValue(newAD);
-        SQLService.getInstance().getPlayerCache().updateModel(victim.getUniqueId(), sqlPlayer -> sqlPlayer.setAttack_damage((byte) newAD));
+        SQLService.getInstance().getPlayerCache().updateModel(victim.getUniqueId(), sqlPlayer -> {
+            // Update Attack Damage
+            sqlPlayer.setAttack_damage((byte) newAD);
+            // Add Death
+            sqlPlayer.setDeaths((short) (sqlPlayer.getDeaths() + 1));
+        });
         Message.mini("<yellow>Your attack damage is now <red>" + newAD + "<yellow>!").send(victim);
 
         final Player killer = victim.getKiller();
@@ -39,7 +44,12 @@ public class ADModifier implements Listener {
         final double killerCurrAD = killerAD.getBaseValue();
         final double killerNewAD = Math.min(HIGH_AD, killerCurrAD + 1);
         killerAD.setBaseValue(killerNewAD);
-        SQLService.getInstance().getPlayerCache().updateModel(killer.getUniqueId(), sqlPlayer -> sqlPlayer.setAttack_damage((byte) killerNewAD));
+        SQLService.getInstance().getPlayerCache().updateModel(killer.getUniqueId(), sqlPlayer -> {
+            // Update Attack Damage
+            sqlPlayer.setAttack_damage((byte) killerNewAD);
+            // Add Kill
+            sqlPlayer.setKills((short) (sqlPlayer.getKills() + 1));
+        });
         Message.mini("<yellow>Your attack damage is now <red>" + killerNewAD + "<yellow>!").send(killer);
     }
 

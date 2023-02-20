@@ -13,6 +13,7 @@ import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
 import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
+import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
 import dev.dpvb.outlast.teams.TeamError;
 import dev.dpvb.outlast.teams.TeamInvite;
@@ -35,6 +36,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -412,6 +415,28 @@ class Commands {
     @CommandMethod(value = "pay <player> <amount>", requiredSender = Player.class)
     @CommandDescription("Pay another player")
     public void pay(CommandSender sender, @NotNull @Argument("player") Player target, @Argument("amount") int amount) {
+    }
+
+    @CommandMethod(value = "stats [username]", requiredSender = Player.class)
+    @CommandDescription("Get a player's statistics")
+    public void stats(CommandSender sender, @Nullable @Argument("username") Player target) {
+        final Player player = (Player) sender;
+        if (target == null) {
+            target = player;
+        }
+
+        SQLPlayer model = playerCache.getModel(target.getUniqueId());
+        final short kills = model.getKills();
+        final short deaths = model.getDeaths();
+        final int coins = model.getCoins();
+        final String firstJoinTime = new SimpleDateFormat("dd MMM yyyy HH:mm:ss z").format(model.getFirst_join_time());
+
+        Message.mini("<bold><gray>>> <red>"+ target.getName() + "'s Stats <gray><<").send(player);
+        Message.mini("<gray>Kills: <red>" + kills).send(player);
+        Message.mini("<gray>Deaths: <red>" + deaths).send(player);
+        Message.mini("<gray>Coins: <red>" + coins).send(player);
+        Message.mini("<gray>First Join: <red>" + firstJoinTime).send(player);
+
     }
 
     @CommandMethod(value = "ad", requiredSender = Player.class)

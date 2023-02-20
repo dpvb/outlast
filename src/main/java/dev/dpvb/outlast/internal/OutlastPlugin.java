@@ -2,7 +2,7 @@ package dev.dpvb.outlast.internal;
 
 import dev.dpvb.outlast.events.FirstTimeJoin;
 import dev.dpvb.outlast.events.JoinQuitMessages;
-import dev.dpvb.outlast.events.ADModifier;
+import dev.dpvb.outlast.events.DeathListener;
 import dev.dpvb.outlast.messages.Messages;
 import dev.dpvb.outlast.messages.MiniMessageService;
 import dev.dpvb.outlast.sql.SQLService;
@@ -82,7 +82,7 @@ public class OutlastPlugin extends JavaPlugin {
     private void setupListeners() {
         Bukkit.getPluginManager().registerEvents(new FirstTimeJoin(), this);
         Bukkit.getPluginManager().registerEvents(new JoinQuitMessages(), this);
-        Bukkit.getPluginManager().registerEvents(new ADModifier(), this);
+        Bukkit.getPluginManager().registerEvents(new DeathListener(), this);
     }
 
     public static class Configuration {
