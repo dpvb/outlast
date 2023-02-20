@@ -1,6 +1,7 @@
 package dev.dpvb.outlast.teleportation;
 
 import dev.dpvb.outlast.internal.OutlastPlugin;
+import dev.dpvb.outlast.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,7 +41,7 @@ class TeleportRunner extends BukkitRunnable implements Listener {
                 // send message to player notifying time left on teleport.
                 final var timeLeft = CHANNEL_TICKS - channeling.ticksWaited;
                 if (timeLeft % 20 == 0 && timeLeft / 20 != 0) {
-                    teleporting.sendMessage("Teleporting in " + (timeLeft / 20) + " seconds.");
+                    Message.mini("<yellow>Teleporting in " + (timeLeft / 20) + " seconds.").send(teleporting);
                 }
                 channeling.ticksWaited++;
                 if (channeling.ticksWaited >= CHANNEL_TICKS) {
@@ -52,7 +53,7 @@ class TeleportRunner extends BukkitRunnable implements Listener {
                         if (success) {
                             // teleport succeeded
                             channeling.state = ChannelingTeleport.State.SUCCEEDED;
-                            teleporting.sendMessage("Teleported!");
+                            Message.mini("<yellow>Teleported!").send(teleporting);
                         } else {
                             // teleport failed
                             channeling.state = ChannelingTeleport.State.CANCELLED; // FIXME should this be a separate state?

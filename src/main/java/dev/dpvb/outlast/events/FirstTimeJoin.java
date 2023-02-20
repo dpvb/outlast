@@ -1,8 +1,9 @@
 package dev.dpvb.outlast.events;
 
+import dev.dpvb.outlast.messages.Messages;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +24,9 @@ public class FirstTimeJoin implements Listener {
         if (cache.getModel(uuid) == null) {
             // Player does not exist in DB, so create it.
             cache.createModel(uuid);
-            Bukkit.getLogger().info("Player entry added for UUID: " + uuid);
+            Messages.console("database.model.add.player_")
+                    .resolve(Placeholder.unparsed("uuid", uuid.toString()))
+                    .sendConsole();
         }
 
         cache.updateModel(uuid, sqlPlayer -> {

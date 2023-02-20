@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.Optional;
 
 /**
  * A request to teleport to another player.
@@ -92,12 +91,12 @@ public class TeleportRequest {
      *
      * @return an optional describing the resultant teleport channel
      */
-    public @NotNull Optional<ChannelingTeleport> accept() {
+    public boolean accept() {
         if (state != State.SENT) {
-            return Optional.empty();
+            return false;
         }
         state = State.ACCEPTED;
-        return Optional.of(new ChannelingTeleport.PlayerChannel(sender, target));
+        return true;
     }
 
     /**

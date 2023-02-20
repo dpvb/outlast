@@ -1,5 +1,6 @@
 package dev.dpvb.outlast.teleportation;
 
+import dev.dpvb.outlast.messages.Messages;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -74,22 +75,10 @@ public abstract class ChannelingTeleport {
     public boolean cancel() {
         if (state == State.WAITING) {
             state = State.CANCELLED;
-            teleporting.sendMessage("Teleportation cancelled.");
+            Messages.game("tp.cancelled.unspecified").send(teleporting);
             return true;
         }
         return false;
-    }
-
-    static class TeamHomeChannel extends ChannelingTeleport {
-        TeamHomeChannel(@NotNull Player teleporting) {
-            super(teleporting);
-        }
-
-        @Override
-        boolean execute() {
-            // TODO get player's team's home
-            return false;
-        }
     }
 
     static class PlayerChannel extends ChannelingTeleport {

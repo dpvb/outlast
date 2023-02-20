@@ -41,6 +41,7 @@ public abstract class Cache<C extends Controller<K, V>, K, V> {
             modelMap.put(extractKey(model), model);
         }
 
+        // FIXME use sendConsole with message
         Bukkit.getLogger().info("Loaded " + modelMap.keySet().size() + " of " + getType());
     }
 
