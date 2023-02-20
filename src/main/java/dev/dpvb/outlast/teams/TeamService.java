@@ -1,5 +1,6 @@
 package dev.dpvb.outlast.teams;
 
+import dev.dpvb.outlast.messages.Message;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
@@ -7,6 +8,7 @@ import dev.dpvb.outlast.sql.cache.TeamCache;
 import dev.dpvb.outlast.sql.models.SQLLocation;
 import dev.dpvb.outlast.sql.models.SQLPlayer;
 import dev.dpvb.outlast.sql.models.SQLTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -197,8 +199,9 @@ public class TeamService {
      *
      * @param player the player to remove
      * @throws PlayerNotTeamed if the player is not in a team
+     * @return The name of the team that the player is leaving. Null if the team is getting deleted.
      */
-    public void leaveTeam(@NotNull UUID player) throws PlayerNotTeamed {
+    public @Nullable String leaveTeam(@NotNull UUID player) throws PlayerNotTeamed {
         if (teamCache == null) throw new IllegalStateException("teamCache not initialized");
 
         // get the player's team name
@@ -232,7 +235,10 @@ public class TeamService {
                     sqlTeam.setLeader(members.get(0));
                 });
             }
+            return teamName;
         }
+
+        return null;
     }
 
     /**

@@ -7,6 +7,7 @@ import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import cloud.commandframework.paper.PaperCommandManager;
 import dev.dpvb.outlast.messages.Message;
+import dev.dpvb.outlast.messages.Messages;
 import dev.dpvb.outlast.sql.SQLService;
 import dev.dpvb.outlast.sql.cache.LocationCache;
 import dev.dpvb.outlast.sql.cache.PlayerCache;
@@ -22,6 +23,8 @@ import dev.dpvb.outlast.teleportation.TeleportService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -86,19 +89,20 @@ class Commands {
     public void teleport(CommandSender sender, @NotNull @Argument(value = "player", suggestions = "players-except-self") Player target) {
         final Player player = (Player) sender;
         if (target.equals(player)) {
-            player.sendPlainMessage("You can't send a teleport request to yourself.");
+            Message.mini("<red>You can't send a teleport request to yourself.").send(player);
             return;
         }
         final var teleportRequest = TeleportService.getInstance().requestTeleport(player, target);
-        player.sendPlainMessage("This request will expire in " + TeleportRequest.TIMEOUT + " seconds.");
-        target.sendPlainMessage("You have received a teleport request from " + player.getName() + ".");
+        Message.mini("<yellow>Your teleport request to <#939EFE>" + target.getName() + " <yellow>will expire in " + TeleportRequest.TIMEOUT + " seconds.").send(player);
+        Message.mini("<yellow>You received a teleport request from <#939EFE>" + player.getName() + "<yellow>.").send(target);
         target.sendMessage(
-                Component.text("Accept with ").append(
+                Component.text("Accept with ")
+                        .color(NamedTextColor.YELLOW).append(
                         Component.text("/tpaccept")
-                                .color(NamedTextColor.AQUA)
+                                .color(TextColor.color(147,158,254))
                                 .hoverEvent(Component.text("Accept teleport request"))
                                 .clickEvent(ClickEvent.suggestCommand("/tpaccept"))
-                ).append(Component.text(". The request will expire in " + TeleportRequest.TIMEOUT + " seconds."))
+                ).append(Component.text(". The request will expire in " + TeleportRequest.TIMEOUT + " seconds.").color(NamedTextColor.YELLOW))
         ); // TODO tpdeny?
     }
 
@@ -109,14 +113,14 @@ class Commands {
         final var teleportRequest = TeleportService.getInstance().getRequest(player);
         // Check for Teleport Request!
         if (teleportRequest == null) {
-            player.sendPlainMessage("You have no pending teleport requests.");
+            Message.mini("<red>You have no pending teleport requests.").send(player);
             return;
         }
 
         // Attempt to Accept Teleport Request
         if (teleportRequest.accept()) {
-            teleportRequest.getSender().sendPlainMessage("Your teleport request was accepted.");
-            player.sendPlainMessage("You accepted " + teleportRequest.getSender().getName() + "'s teleport request!");
+            Message.mini("<yellow>Your teleport request was accepted.").send(teleportRequest.getSender());
+            Message.mini("<yellow>You accepted <#939EFE>" + teleportRequest.getSender().getName() + "<yellow>'s teleport request!").send(player);
             TeleportService.getInstance().teleportPlayer(teleportRequest.getSender(), player);
             return;
         }
@@ -167,11 +171,11 @@ class Commands {
         // create the team
         try {
             TeamService.getInstance().createTeam(name, player.getUniqueId());
-            player.sendPlainMessage("Created Team " + name + ".");
+            Message.mini("<yellow>Successfully created team <#939EFE>" + name + "<yellow>!").send(player);
         } catch (TeamError.Exists e) {
-            player.sendPlainMessage(e.getMessage());
+            Message.mini("<red>" + e.getMessage()).send(player);
         } catch (TeamError.PlayerAlreadyTeamed e) {
-            player.sendPlainMessage("You are already on a team.");
+            Message.mini("<red>You are already on a team.").send(player);
         }
     }
 
@@ -183,38 +187,39 @@ class Commands {
         // check if they are not on a team.
         String team = teamService.getTeam(player.getUniqueId());
         if (team == null) {
-            player.sendPlainMessage("You must be on a team to perform this command.");
+            Message.mini("<red>You must be on a team to perform this command.").send(player);
             return;
         }
 
         // check if the sender is the leader.
         if (!teamService.isLeaderOfTeam(player.getUniqueId(), team)) {
-            player.sendPlainMessage("You must be the team leader to do this.");
+            Message.mini("<red>You must be the team leader to do this.").send(player);
             return;
         }
 
         // check if they are attempting to invite themselves.
         if (player.equals(target)) {
-            player.sendPlainMessage("You can't invite yourself.");
+            Message.mini("<red>You can't invite yourself.").send(player);
             return;
         }
 
         // check if the player you want to invite is already on a team
         if (teamService.getTeam(target.getUniqueId()) != null) {
-            player.sendPlainMessage("That player is already on a team.");
+            Message.mini("<red>That player is already on a team.").send(player);
             return;
         }
 
         // check if team is full
         if (teamService.isTeamFull(team)) {
-            player.sendPlainMessage("The team is full, so you can not add anymore players.");
+            Message.mini("<red>The team is full, so you can not add anymore players.").send(player);
             return;
         }
 
         // invite player
         final TeamInvite teamInvite = teamService.invitePlayer(target, team);
-        player.sendPlainMessage("Request will timeout in " + TeamInvite.TIMEOUT + " seconds.");
-        target.sendPlainMessage(player.getName() + " sent you an invite to join Team " + team);
+        Message.mini("<yellow>Your invite to <#939EFE>" + target.getName() + " <yellow>will expire in " + TeamInvite.TIMEOUT + " seconds.").send(player);
+        Message.mini("<#939EFE>" + player.getName() + " <yellow>sent you an invite to join <#939EFE>" + team + "<yellow>!").send(target);
+        Message.mini("<yellow>Use <#939EFE>/team join <yellow>to join the team.").send(target);
     }
 
     @CommandMethod(value = "team join", requiredSender = Player.class)
@@ -235,7 +240,7 @@ class Commands {
             try {
                 teamService.joinTeam(teamInvite.getTeamName(), player.getUniqueId());
                 teamInvite.accept(); // move to accepted state after joining
-                player.sendPlainMessage("Joined team!");
+                Message.mini("<#939EFE>" + player.getName() + " <yellow>joined <#939EFE>" + teamInvite.getTeamName() + "<yellow>!").sendTeam(teamInvite.getTeamName());
             } catch (TeamError.DoesNotExist | TeamError.Full e) {
                 Message.mini("<red>" + e.getMessage()).send(player);
             } catch (TeamError.PlayerAlreadyTeamed ignored) {
@@ -260,13 +265,13 @@ class Commands {
         if (name == null) {
             name = playerCache.getModel(player.getUniqueId()).getTeam_name();
             if (name == null) {
-                player.sendPlainMessage("You are not on a team!");
+                Message.mini("<red>You are not in a team!").send(player);
                 return;
             }
         } else {
             SQLTeam team = teamCache.getModel(name);
             if (team == null) {
-                player.sendPlainMessage("That team does not exist.");
+                Message.mini("<red>That team does not exist!").send(player);
                 return;
             }
         }
@@ -280,12 +285,12 @@ class Commands {
 
         // Display It!
         Message.mini("<#4B5CE9><bold>Team <white>" + name).send(player);
-        Message.mini("<#9AA4F8>> " + teamLeader.getName() + "<#4B5CE9><italic> (Leader)").send(player);
+        Message.mini("<#939EFE>> " + teamLeader.getName() + "<#4B5CE9><italic> (Leader)").send(player);
         for (OfflinePlayer offlinePlayer : otherMembers) {
             if (offlinePlayer.equals(teamLeader)) {
                 continue;
             }
-            Message.mini("<#9AA4F8>> " + offlinePlayer.getName() + "").send(player);
+            Message.mini("<#939EFE>> " + offlinePlayer.getName() + "").send(player);
         }
     }
 
@@ -299,10 +304,13 @@ class Commands {
     public void leaveTeam(CommandSender sender) {
         final Player player = (Player) sender;
         try {
-            TeamService.getInstance().leaveTeam(player.getUniqueId());
-            player.sendPlainMessage("You left the team.");
+            final String leftTeam = TeamService.getInstance().leaveTeam(player.getUniqueId());
+            if (leftTeam != null) {
+                Message.mini("<#939EFE>" + player.getName() + " <yellow>left the team.").sendTeam(leftTeam);
+            }
+            Message.mini("<yellow>You left the team.").send(player);
         } catch (TeamError.PlayerNotTeamed ignored) {
-            player.sendPlainMessage("You are not in a team.");
+            Message.mini("<red>You are not on a team.").send(player);
         }
     }
 
@@ -314,33 +322,32 @@ class Commands {
         // check if player is in team.
         String team = teamService.getTeam(player.getUniqueId());
         if (team == null) {
-            player.sendPlainMessage("You must be on a team to perform this command.");
+            Message.mini("<red>You must be on a team to perform this command.").send(player);
             return;
         }
 
         // check if sender is the leader
         if (!teamService.isLeaderOfTeam(player.getUniqueId(), team)) {
-            player.sendPlainMessage("You must be the team leader to do this.");
+            Message.mini("<red>You must be the team leader to do this.").send(player);
             return;
         }
 
         // check if they are attempting to set leader to themselves
         if (player.equals(target)) {
-            player.sendPlainMessage("You are already the team leader.");
+            Message.mini("<red>You are already the team leader.").send(player);
             return;
         }
 
         // check if the player you want to invite is on your team.
         String targetTeam = teamService.getTeam(target.getUniqueId());
         if (targetTeam == null || !targetTeam.equals(team)) {
-            player.sendPlainMessage("They are not on your team.");
+            Message.mini("<red>They are not on your team.").send(player);
             return;
         }
 
         // set the team leader;
         teamService.setLeader(team, target);
-        player.sendPlainMessage("Transferred leadership to " + target.getName());
-        target.sendPlainMessage("You are now the team leader!");
+        Message.mini("<#939EFE>" + player.getName() + " <yellow>transferred leadership to <#939EFE>" + target.getName() + "<yellow>!").sendTeam(targetTeam);
     }
 
     @CommandMethod(value = "team sethome", requiredSender = Player.class)
@@ -351,22 +358,22 @@ class Commands {
         final TeamService teamService = TeamService.getInstance();
         String teamName = teamService.getTeam(player.getUniqueId());
         if (teamName == null) {
-            player.sendPlainMessage("You must be on a team to perform this command.");
+            Message.mini("<red>You must be on a team to perform this command.").send(player);
             return;
         }
 
         // check if player is leader
         if (!teamService.isLeaderOfTeam(player.getUniqueId(), teamName)) {
-            player.sendPlainMessage("You must be the team leader to perform this command.");
+            Message.mini("<red>You must be the team leader to perform this command.").send(player);
             return;
         }
 
         // attempt to set the team home.
         try {
             teamService.setTeamHome(teamName, player.getLocation());
-            player.sendPlainMessage("Set the team home to your location.");
+            Message.mini("<yellow>Set the team home to your location.").send(player);
         } catch (TeamError.DoesNotExist e) {
-            player.sendPlainMessage(e.getMessage());
+            Message.mini("<red>" + e.getMessage()).send(player);
         }
     }
 
@@ -379,14 +386,14 @@ class Commands {
 
         // Check if player is in a team.
         if (teamName == null) {
-            player.sendPlainMessage("You are not in a team.");
+            Message.mini("<red>You are not in a team.").send(player);
             return;
         }
 
         // Teleport them home baby
         final ChannelingTeleport pendingTeleport = TeleportService.getInstance().teleportHome(player, teamName);
         if (pendingTeleport == null) {
-            player.sendPlainMessage("Your team does not have a home set.");
+            Message.mini("<red>Your team does not have a home set.").send(player);
         }
     }
     // team commands end
