@@ -149,15 +149,15 @@ class Commands {
     @CommandDescription("List all team commands here.")
     public void team(CommandSender sender) {
         final Player player = (Player) sender;
-        player.sendPlainMessage(">> TEAM COMMANDS <<");
-        player.sendPlainMessage("- /team create <name> (Create a team)");
-        player.sendPlainMessage("- /team invite <username> (Invite player to your team)");
-        player.sendPlainMessage("- /team join (Accept incoming team invite)");
-        player.sendPlainMessage("- /team leave (Leave the team you are in)");
-        player.sendPlainMessage("- /team sethome (Set the home location of your team)");
-        player.sendPlainMessage("- /team home (Teleport to your team home)");
-        player.sendPlainMessage("- /team info [name] (Learn more about a team)");
-        player.sendPlainMessage("- /team setleader <username> (Give leader to a teammate)");
+        Message.mini("<bold><gray>>> <#939EFE>TEAM COMMANDS <gray><<").send(player);
+        Message.mini("<#939EFE>- /team create <name> <yellow>(Create a team)").send(player);
+        Message.mini("<#939EFE>- /team invite <username> <yellow>(Invite player to your team)").send(player);
+        Message.mini("<#939EFE>- /team join <yellow>(Accept incoming team invite)").send(player);
+        Message.mini("<#939EFE>- /team leave <yellow>(Leave the team you are in)").send(player);
+        Message.mini("<#939EFE>- /team sethome <yellow>(Set the home location of your team)").send(player);
+        Message.mini("<#939EFE>- /team home <yellow>(Teleport to your team home)").send(player);
+        Message.mini("<#939EFE>- /team setleader <username> <yellow>(Give leader to a teammate)").send(player);
+        Message.mini("<#939EFE>- /team info [name] <yellow>(Learn more about a team)").send(player);
     }
 
     @CommandMethod(value = "team create <name>", requiredSender = Player.class)
