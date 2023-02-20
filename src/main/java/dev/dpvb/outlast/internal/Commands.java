@@ -414,6 +414,14 @@ class Commands {
     public void pay(CommandSender sender, @NotNull @Argument("player") Player target, @Argument("amount") int amount) {
     }
 
+    @CommandMethod(value = "ad", requiredSender = Player.class)
+    @CommandDescription("View your attack damage")
+    public void ad(CommandSender sender) {
+        final Player player = (Player) sender;
+        final double ad = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
+        Message.mini("<gray>Your attack damage is currently <red>" + ad + "<gray>!").send(player);
+    }
+
     // Admin commands
     @CommandMethod(value = "setspawn", requiredSender = Player.class)
     @CommandDescription("Sets the spawn location to your current location")
