@@ -1,1 +1,2 @@
 mysql-conn-string: "insert_conn_string"
+ad-upper-bound: 6
